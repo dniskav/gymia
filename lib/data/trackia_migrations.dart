@@ -23,32 +23,53 @@ Future<void> _createTrackiaV5(Database db) async {
 
 Future<void> _backupBeforeTrackiaV5(Database db, String dbPath) async {
   if (dbPath == inMemoryDatabasePath) return;
-  final tables = <String, List<Map<String, Object?>>>{};
-  for (final table in SqliteWorkoutRepository._backupTables.keys) {
-    tables[table] = await db.query(table);
-  }
-  final source = jsonEncode({
-    'format': 'gymia-backup',
-    'version': 3,
-    'tables': tables,
-  });
-  if (source.length > 20 * 1024 * 1024) {
-    throw const ValidationException(
-      'La copia previa supera 20 MB. Exporta y guarda una copia antes de actualizar.',
-    );
-  }
-  final target = File('$dbPath.pre-trackia-v4.json');
-  if (await target.exists()) {
-    if (await target.readAsString() != source) {
-      throw const ValidationException(
-        'Ya existe una copia previa distinta. Consérvala antes de actualizar.',
-      );
-    }
-    return;
-  }
+  final preferred = File('$dbPath.pre-trackia-v4.json');
+  // A failed first attempt may have left a valid backup. Keep it and create a
+  // second snapshot of the current v4 database instead of blocking startup.
+  final target =
+      await preferred.exists()
+          ? File('${preferred.path}.${DateTime.now().microsecondsSinceEpoch}')
+          : preferred;
   final pending = File('${target.path}.tmp');
-  await pending.writeAsString(source, flush: true);
-  await pending.rename(target.path);
+  final sink = pending.openWrite();
+  try {
+    sink.write('{"format":"gymia-backup","version":3,"tables":{');
+    var firstTable = true;
+    for (final table in SqliteWorkoutRepository._backupTables.keys) {
+      if (!firstTable) sink.write(',');
+      firstTable = false;
+      sink.write('${jsonEncode(table)}:[');
+      var firstRow = true;
+      var lastRowId = -9223372036854775808;
+      while (true) {
+        // A small page bounds memory even when a history contains large media.
+        final rows = await db.rawQuery(
+          'SELECT rowid AS _backup_rowid, * FROM "$table" '
+          'WHERE rowid > ? ORDER BY rowid LIMIT 4',
+          [lastRowId],
+        );
+        if (rows.isEmpty) break;
+        for (final row in rows) {
+          lastRowId = row['_backup_rowid'] as int;
+          if (!firstRow) sink.write(',');
+          firstRow = false;
+          sink.write(
+            jsonEncode(Map<String, Object?>.from(row)..remove('_backup_rowid')),
+          );
+        }
+        await sink.flush();
+      }
+      sink.write(']');
+    }
+    sink.write('}}');
+    await sink.flush();
+    await sink.close();
+    await pending.rename(target.path);
+  } catch (_) {
+    await sink.close();
+    if (await pending.exists()) await pending.delete();
+    rethrow;
+  }
 }
 
 Future<void> _ensureTrackiaDefaultSpace(Database db, String profileId) =>

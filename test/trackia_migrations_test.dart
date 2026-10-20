@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gymia/data/sqlite_workout_repository.dart';
@@ -125,4 +126,52 @@ void main() {
       await dir.delete(recursive: true);
     }
   });
+
+  test(
+    'v4 upgrade accepts a history with more than 20 MB of attachments',
+    () async {
+      final dir = await Directory.systemTemp.createTemp('trackia-large-v4-');
+      final path = '${dir.path}/legacy.sqlite';
+      try {
+        final fixture = await TrackiaLegacyFixture.create(
+          factory: databaseFactoryFfi,
+          path: path,
+        );
+        final db = await databaseFactoryFfi.openDatabase(path);
+        final attachment = jsonEncode({
+          'name': 'fixture.png',
+          'mime': 'image/png',
+          'base64': base64Encode(Uint8List(3 * 1024 * 1024)),
+        });
+        for (var index = 0; index < 6; index++) {
+          await db.insert('activity_messages', {
+            'id': 'media-$index',
+            'activity_id': fixture.activityId,
+            'interval_id': null,
+            'text': 'Adjunto sintético $index',
+            'role': 'user',
+            'recorded_at': 1000 + index,
+            'metrics': '{}',
+            'attachment': attachment,
+            'attachment_name': 'fixture.png',
+            'attachment_mime': 'image/png',
+          });
+        }
+        await db.close();
+
+        final repo = await SqliteWorkoutRepository.open(
+          factory: databaseFactoryFfi,
+          path: path,
+        );
+        expect((await repo.loadActivities()).single.messages, hasLength(7));
+        await repo.close();
+        expect(
+          await File('$path.pre-trackia-v4.json').length(),
+          greaterThan(20 * 1024 * 1024),
+        );
+      } finally {
+        await dir.delete(recursive: true);
+      }
+    },
+  );
 }

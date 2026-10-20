@@ -24,6 +24,7 @@ class Bootstrap extends StatefulWidget {
 class _BootstrapState extends State<Bootstrap> {
   final profiles = ProfileStore.instance;
   final controllers = <String, WorkoutController>{};
+  bool showErrorDetails = false;
   @override
   void initState() {
     super.initState();
@@ -123,10 +124,32 @@ class _BootstrapState extends State<Bootstrap> {
                           FilledButton(
                             onPressed:
                                 () => setState(() {
+                                  showErrorDetails = false;
                                   future = _open();
                                 }),
                             child: const Text('Reintentar'),
                           ),
+                          TextButton(
+                            onPressed:
+                                () => setState(() {
+                                  showErrorDetails = !showErrorDetails;
+                                }),
+                            child: Text(
+                              showErrorDetails
+                                  ? 'Ocultar detalle técnico'
+                                  : 'Ver detalle técnico',
+                            ),
+                          ),
+                          if (showErrorDetails)
+                            ConstrainedBox(
+                              constraints: const BoxConstraints(maxHeight: 160),
+                              child: SingleChildScrollView(
+                                child: SelectableText(
+                                  snapshot.error.toString(),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
                         ],
                       )
                       : const CircularProgressIndicator(),

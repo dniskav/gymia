@@ -72,3 +72,21 @@ no prueba todavía las demás historias del SDD, consentimiento real de proveedo
   el recorrido de datos históricos con valores se cubre con las fixtures v4/v3.
 - Distribuida directamente por Fairdrop. Las actividades abiertas, notas
   independientes, espacios seleccionables y relojes generales siguen pendientes.
+
+## Corrección 0.3.24+27 · apertura de bitácoras grandes
+
+- La migración v4→v5 ya no rechaza el respaldo previo cuando los adjuntos superan
+  20 MB. Escribe el JSON por páginas en un archivo temporal y lo renombra al
+  completarse; conserva respaldos previos si se reintenta una migración fallida.
+- La prueba `trackia_migrations_test.dart` reproduce el bloqueo anterior con seis
+  adjuntos de 3 MB y verifica que la actualización abre y conserva sus datos.
+  `./scripts/flutter-local.sh test --reporter expanded`: **180 pruebas aprobadas**;
+  `./scripts/flutter-local.sh analyze`: sin incidencias.
+- Si la apertura falla por otra causa, la pantalla ofrece «Ver detalle técnico»
+  para poder identificarla sin borrar los datos del usuario.
+- APK firmada `releases/gymia-0.3.24.apk`, SHA-256
+  `b0a9c2d6df9aa854257d57cf03c63bdbe12b2f5fbd7e44f224d8a48e05b65b0b`.
+  `apksigner verify` confirma el certificado previo; `aapt` confirma
+  `com.gymia.app`, versionName 0.3.24 y versionCode 27. Instalada encima de
+  0.3.23 en el AVD Android 35 ARM64; abre la bienvenida correctamente. La
+  migración con adjuntos se verificó en SQLite FFI, sin datos reales del usuario.
