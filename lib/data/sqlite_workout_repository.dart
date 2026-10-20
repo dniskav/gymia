@@ -1,5 +1,6 @@
 import 'package:path/path.dart' as p;
 import 'dart:convert';
+import 'dart:io';
 import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
 import '../domain/workout.dart';
@@ -9,7 +10,9 @@ import '../domain/rest_timer.dart';
 import '../domain/transfer.dart';
 import '../domain/transfer_repository.dart';
 import '../domain/activity.dart';
+import '../domain/space.dart';
 part 'sqlite_activity_repository.dart';
+part 'trackia_migrations.dart';
 
 class SqliteWorkoutRepository
     with _SqliteActivities
@@ -285,13 +288,15 @@ class SqliteWorkoutRepository
     DatabaseFactory? factory,
     String? path,
     DateTime Function()? clock,
+    String profileId = 'local',
   }) async {
+    validTrackiaId(profileId);
     final f = factory ?? databaseFactory;
     final dbPath = path ?? p.join(await f.getDatabasesPath(), 'gymia.sqlite');
     final db = await f.openDatabase(
       dbPath,
       options: OpenDatabaseOptions(
-        version: 4,
+        version: 5,
         onConfigure: (db) => db.execute('PRAGMA foreign_keys = ON'),
         onCreate: (db, version) async {
           await db.execute('''CREATE TABLE workouts (
@@ -316,14 +321,25 @@ class SqliteWorkoutRepository
           await _migrateV2(db);
           await _migrateV3(db);
           await _migrateV4(db);
+          await _createTrackiaV5(db);
         },
         onUpgrade: (db, old, next) async {
           if (old < 2) await _migrateV2(db);
           if (old < 3) await _migrateV3(db);
           if (old < 4) await _migrateV4(db);
+          if (old < 5) {
+            await _backupBeforeTrackiaV5(db, dbPath);
+            await _createTrackiaV5(db);
+          }
         },
       ),
     );
+    try {
+      await _ensureTrackiaDefaultSpace(db, profileId);
+    } catch (_) {
+      await db.close();
+      rethrow;
+    }
     return SqliteWorkoutRepository._(db, clock ?? DateTime.now);
   }
 
@@ -940,6 +956,14 @@ class SqliteWorkoutRepository
           'La copia contiene actividades con relaciones incoherentes.',
         );
       }
+      final owner =
+          (await tx.query(
+                'trackia_spaces',
+                columns: ['profile_id'],
+                limit: 1,
+              )).single['profile_id']
+              as String;
+      await _backfillTrackiaLegacyScope(tx, owner);
     });
   }
 

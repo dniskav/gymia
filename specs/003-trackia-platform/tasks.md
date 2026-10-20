@@ -2,7 +2,8 @@
 
 **Input**: [plan](plan.md), [spec](spec.md), [research](research.md), [modelo](data-model.md) y [contratos](contracts/assistant-proposals.md).
 
-**Prerequisites**: diseño documental completo; implementación todavía pendiente.
+**Prerequisites**: diseño documental completo; base de compatibilidad T001–T006 y
+pruebas de migración T009 implementadas. Las historias de producto siguen pendientes.
 
 **Tests**: incluidos para verificar los criterios de aceptación, datos y efectos exigidos por la especificación. Escribir primero las pruebas relevantes y comprobar el fallo significativo antes de implementar.
 
@@ -24,8 +25,8 @@ describen trabajo futuro.
 
 **Independent Test / Checkpoint**: Fixtures sanitizados y matriz de pruebas disponibles.
 
-- [ ] T001 Crear fixtures sintéticos de BD v4, copia v3, IDs y originales en `test/fixtures/trackia_legacy_fixtures.dart`; no usar datos personales. (FR-028 SC-004).
-- [ ] T002 [P] Registrar identidad Android/firma esperada, claves, versión base y capacidades entregadas en `docs/TRACKIA-BASELINE.md`. (FR-001 FR-030).
+- [x] T001 Crear fixtures sintéticos de BD v4, copia v3, IDs y originales en `test/fixtures/trackia_legacy_fixtures.dart`; no usar datos personales. (FR-028 SC-004).
+- [x] T002 [P] Registrar identidad Android/firma esperada, claves, versión base y capacidades entregadas en `docs/TRACKIA-BASELINE.md`. (FR-001 FR-030).
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
@@ -33,13 +34,13 @@ describen trabajo futuro.
 
 **Independent Test / Checkpoint**: Backfill por perfil idempotente, contratos locales y original de nota persistidos. Bloquea todas las historias.
 
-- [ ] T003 Definir ámbito en `lib/domain/space.dart`: «IDs de entidad no vacíos e inmutables; toda entidad de espacio requiere profileId y spaceId válidos del mismo propietario.» (FR-006 FR-007).
-- [ ] T004 [P] Definir revisiones/campos en `lib/domain/activity_definition.dart`: «name y etiquetas visibles tienen entre 1 y 80 caracteres tras quitar espacios extremos; instructions admite de 0 a 8000 caracteres.» «revision y schemaVersion son enteros positivos; una edición incrementa revision y no modifica snapshots aceptados.» «type pertenece a number, text, boolean, choice o attachment; unit es opcional, pero se conserva si existe; un valor ausente no se convierte en cero.» (FR-002 FR-019).
-- [ ] T005 Implementar catálogo versionado y validador de capacidades en `lib/application/capability_registry.dart`; mantener aliases gymia-*. (FR-003 FR-037).
-- [ ] T006 Crear migraciones aditivas, respaldo y espacio por defecto por perfil en `lib/data/trackia_migrations.dart`; no trasladar datos a otra cuenta. (FR-025 FR-028).
+- [x] T003 Definir ámbito en `lib/domain/space.dart`: «IDs de entidad no vacíos e inmutables; toda entidad de espacio requiere profileId y spaceId válidos del mismo propietario.» (FR-006 FR-007).
+- [x] T004 [P] Definir revisiones/campos en `lib/domain/activity_definition.dart`: «name y etiquetas visibles tienen entre 1 y 80 caracteres tras quitar espacios extremos; instructions admite de 0 a 8000 caracteres.» «revision y schemaVersion son enteros positivos; una edición incrementa revision y no modifica snapshots aceptados.» «type pertenece a number, text, boolean, choice o attachment; unit es opcional, pero se conserva si existe; un valor ausente no se convierte en cero.» (FR-002 FR-019).
+- [x] T005 Implementar catálogo versionado y validador de capacidades en `lib/application/capability_registry.dart`; mantener aliases gymia-*. (FR-003 FR-037).
+- [x] T006 Crear migraciones aditivas, respaldo y espacio por defecto por perfil en `lib/data/trackia_migrations.dart`; no trasladar datos a otra cuenta. (FR-025 FR-028).
 - [ ] T007 Crear persistencia mínima de notas locales en `lib/data/observation_repository.dart`: «runId en una observación es opcional; original y provenance son obligatorios y las correcciones generan revisión sin sobrescribir el original.» (FR-023 FR-024).
 - [ ] T008 Crear núcleo transaccional sin reloj obligatorio en `lib/data/activity_run_repository.dart`: «commandId es único por ejecución y sequence es único y creciente por runId; el cambio de estado, evento y revisión se confirman en una transacción.» (FR-012 FR-021).
-- [ ] T009 Probar rollback desde respaldo, IDs y backfill repetido en `test/trackia_migrations_test.dart`. (FR-028 SC-004).
+- [x] T009 Probar rollback desde respaldo, IDs y backfill repetido en `test/trackia_migrations_test.dart`. (FR-028 SC-004).
 
 ## Phase 3: User Story 1 — Actividad propia (P1, MVP)
 

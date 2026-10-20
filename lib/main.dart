@@ -62,7 +62,10 @@ class _BootstrapState extends State<Bootstrap> {
               widget.databaseDirectory ?? await getDatabasesPath(),
               id == 'local' ? 'gymia.sqlite' : 'gymia-$id.sqlite',
             );
-    final repository = await SqliteWorkoutRepository.open(path: path);
+    final repository = await SqliteWorkoutRepository.open(
+      path: path,
+      profileId: id,
+    );
     final controller = WorkoutController(repository, profileId: id);
     await controller.refresh();
     if (!controller.loaded) {

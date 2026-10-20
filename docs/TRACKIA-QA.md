@@ -1,8 +1,9 @@
 # TrackIA · primer incremento de implementación
 
-Fecha: 20/10/2026. Estado: bienvenida US9 implementada en el código fuente y probada
-localmente. La aplicación visible y el APK público siguen siendo GymIA 0.3.22+25; no
-se declara completa la evolución general a TrackIA ni se ha distribuido este APK de QA.
+Fecha: 20/10/2026. Estado: bienvenida US9 y base de compatibilidad TrackIA
+implementadas en el código fuente y probadas localmente. La aplicación visible y el
+APK público siguen siendo GymIA 0.3.22+25; no se declara completa la evolución
+general a TrackIA ni se ha distribuido este APK de QA.
 
 La conversación con IA es el centro del producto. La bienvenida describe las funciones
 actuales; explica que el proveedor debe estar configurado para usar IA y que los
@@ -37,3 +38,24 @@ personalidades ni temporizadores generales antes de implementarlos.
 La prueba Android fue manual. El recorrido automatizado en `integration_test/` (T050)
 sigue pendiente; también falta una publicación de APK con versión propia. Este informe
 no prueba todavía las demás historias del SDD, consentimiento real de proveedores ni iOS.
+
+## Base compatible SQLite v5
+
+- T001–T006 y T009: fixture sintética v4 con copia `gymia-backup` v3, IDs de
+  entrenamiento/ejercicio/serie/actividad/mensaje y texto original; ninguna fila
+  proviene de un usuario. Identidad, firma esperada, claves y capacidades actuales en
+  [la base de compatibilidad](TRACKIA-BASELINE.md).
+- La apertura de una BD v4 escribe `*.pre-trackia-v4.json` antes de migrar, añade las
+  tablas de espacio y vínculos sin reconstruir las tablas legadas, y crea «Gimnasio»
+  para el perfil que posee esa BD. Si se abre con otro `profileId`, falla sin reasignar.
+  Reabrir no duplica el espacio; restaurar el respaldo v3 recupera originales e IDs.
+- `test/trackia_foundation_test.dart`, `test/trackia_legacy_fixture_test.dart` y
+  `test/trackia_migrations_test.dart` cubren ámbito, revisiones, campos opcionales,
+  catálogo y migración. `./scripts/flutter-local.sh test`: **179 pruebas aprobadas**;
+  `./scripts/flutter-local.sh analyze`: sin incidencias. El esquema nuevo aún no
+  almacena observaciones ni ejecuciones TrackIA; T007/T008 siguen pendientes.
+- Android API 35 ARM64, AVD de prueba `trackia_qa`, instalación debug nueva:
+  `integration_test/workout_flow_test.dart -d emulator-5554` aprobado (sesión
+  offline, edición, borrado, recuperación e historial). Este recorrido verifica
+  que las funciones legadas siguen operando sobre v5; la migración v4→v5 con
+  datos sintéticos se probó en SQLite FFI, no en una instalación Android previa.

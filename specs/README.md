@@ -1,7 +1,8 @@
 # Especificaciones del producto
 
 Base entregada: **GymIA 0.3.22+25**. Objetivo acordado: **TrackIA**, un asistente para
-actividades y registros personales diversos. La bienvenida US9 ya tiene código y QA local; el APK público aún es 0.3.22.
+actividades y registros personales diversos. La bienvenida US9 y la base de
+compatibilidad SQLite v5 tienen código y QA local; el APK público aún es 0.3.22.
 
 El SDD vigente de la evolución está en [003-trackia-platform/spec.md](003-trackia-platform/spec.md).
 

@@ -1,6 +1,8 @@
 # Modelo de datos propuesto
 
-Estado: diseño, no esquema migrado. Perfil mantiene la BD actual; spaceId es una
+Estado: diseño, con esquema base v5 migrado (espacio Gimnasio y vínculos legados);
+ejecuciones, observaciones y destinos nuevos aún no están implementados.
+Perfil mantiene la BD actual; spaceId es una
 partición lógica dentro de ella. Los vínculos usan identidad, nunca nombre visible.
 
 ## Entidades y relaciones

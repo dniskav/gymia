@@ -44,7 +44,8 @@ for line in lines:
         check(match[2] is None or match[2] in dict(stories), f'Unknown story: {line[:25]}')
 check(ids == [f'T{n:03}' for n in range(1, len(ids)+1)], 'Task IDs not sequential/unique')
 check(len(ids) == 63, 'Expected 63 implementation tasks')
-check(sum(line.startswith('- [x]') for line in lines) == 5, 'Expected five completed welcome tasks')
+completed = sum(line.startswith('- [x]') for line in lines)
+check(completed == 12, 'Expected twelve completed implementation tasks')
 for req in expected:
     row = re.search(r'^\| '+req+r' \|.*$', trace, re.M)
     check(bool(row), f'No traceability row: {req}')
@@ -79,5 +80,5 @@ check(not (ROOT / '.specify/extensions.yml').exists(),
 if errors:
     print('\n'.join(errors), file=sys.stderr)
     sys.exit(1)
-print('PASS: 9 stories, 43 FR + 9 SC with task coverage, 63 tasks (5 done), '
-      '14 quoted constraints, authored links/placeholders checked. See docs/TRACKIA-QA.md for US9 runtime evidence.')
+print(f'PASS: 9 stories, 43 FR + 9 SC with task coverage, 63 tasks ({completed} done), '
+      '14 quoted constraints, authored links/placeholders checked. See docs/TRACKIA-QA.md for runtime evidence.')

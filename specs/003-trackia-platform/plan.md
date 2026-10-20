@@ -2,7 +2,8 @@
 
 **Branch**: identificador lógico `003-trackia-platform`, sin cambio de rama | **Date**: 2026-10-20 | **Spec**: [spec.md](spec.md)
 
-**Input**: [Especificación de producto](spec.md). Entrega actual: SDD, sin cambios de runtime.
+**Input**: [Especificación de producto](spec.md). Entrega actual: SDD,
+bienvenida y base de compatibilidad SQLite v5; historias de actividad pendientes.
 
 ## Summary
 
@@ -13,8 +14,9 @@ determinista, un compositor de contexto y repositorios con ámbito explícito. A
 bienvenida opcional, continuidad local ante fallos de conexión y destinos múltiples.
 
 Spec Kit: investigación de fase 0 y diseño de fase 1 documentados; desglose de fase 2
-en [tasks.md](tasks.md). La bienvenida se adelantó como incremento independiente
-con contenido limitado a las capacidades presentes; el resto continúa pendiente.
+en [tasks.md](tasks.md). La bienvenida se adelantó como incremento independiente.
+La primera base añade ámbitos, catálogo y migración compatible; todavía no habilita
+actividades TrackIA ni espacios seleccionables en la interfaz.
 
 ## Technical Context
 
@@ -24,13 +26,13 @@ con contenido limitado a las capacidades presentes; el resto continúa pendiente
 flutter_markdown_plus, speech_to_text; conservar clientes de IA y puente Google existentes.
 No nuevo backend ni dependencia de audio para la primera entrega.
 
-**Storage**: SQLite v4 actual por perfil; migraciones aditivas versionadas para espacios,
+**Storage**: SQLite v5 actual por perfil (v4 legado); migraciones aditivas versionadas para espacios,
 planes, ejecuciones, observaciones y jobs. Secretos en almacenamiento seguro. Preferencia
 de bienvenida por dispositivo, separada de perfiles, como la apariencia.
 
 **Testing**: flutter_test, integration_test, sqflite_common_ffi y pruebas Kotlin existentes.
-La base tiene evidencia histórica de 164 pruebas Flutter y 9 pruebas nativas de la última
-entrega; no se han vuelto a ejecutar por este cambio exclusivamente documental.
+La base de compatibilidad pasó 179 pruebas Flutter y el recorrido Android de
+entrenamiento legado en API 35 ARM64; [evidencia](../../docs/TRACKIA-QA.md).
 
 **Target Platform**: Android API 23+; referencia de aceptación inicial: emulador Android
 API 35 ARM64 con configuración registrada en el informe de cada ejecución. iOS mantiene
@@ -136,7 +138,8 @@ Las historias P1 preceden al multidestino P2 y capacidades avanzadas P3.
    US8 inicialmente entrega validación y alternativa compatible; no implementa todos esos motores.
 
 Cada incremento termina con su prueba independiente de quickstart y evidencia. La
-implementación solo comienza en un trabajo posterior que la incluya en su alcance.
+implementación de la base ya comenzó; los incrementos restantes requieren sus
+pruebas independientes antes de anunciarse como disponibles.
 
 ## Complexity Tracking
 

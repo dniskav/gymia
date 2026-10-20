@@ -1,6 +1,7 @@
 # Recorrido de revisión y aceptación
 
-El checkout ya incluye la bienvenida US9; [evidencia de QA](../../docs/TRACKIA-QA.md).
+El checkout ya incluye la bienvenida US9 y la base de compatibilidad T001–T006/T009;
+[evidencia de QA](../../docs/TRACKIA-QA.md).
 La evolución general de TrackIA sigue pendiente y aún no hay APK público de esta etapa.
 
 ## Revisar los documentos
