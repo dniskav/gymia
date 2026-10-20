@@ -37,9 +37,14 @@ void main() {
     FlutterSecureStorage.setMockInitialValues({});
   });
 
-  String sign(Map<String, dynamic> extra, {JsonWebKey? signingKey}) {
+  String sign(
+    Map<String, dynamic> extra, {
+    JsonWebKey? signingKey,
+    bool embedPublicKey = false,
+  }) {
     final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-    return (JsonWebSignatureBuilder()
+    final signer =
+        JsonWebSignatureBuilder()
           ..jsonContent = {
             'iss': ChatGptAuth.issuer,
             'sub': 'person-a',
@@ -49,9 +54,16 @@ void main() {
             'iat': now,
             ...extra,
           }
-          ..addRecipient(signingKey ?? key, algorithm: 'RS256'))
-        .build()
-        .toCompactSerialization();
+          ..addRecipient(signingKey ?? key, algorithm: 'RS256');
+    if (embedPublicKey) {
+      signer.setProtectedHeader(
+        'jwk',
+        JsonWebKey.fromCryptoKeys(
+          publicKey: (signingKey ?? key).cryptoKeyPair.publicKey,
+        ).toJson(),
+      );
+    }
+    return signer.build().toCompactSerialization();
   }
 
   ChatGptTransport identityTransport({
@@ -385,6 +397,18 @@ void main() {
       await expectLater(
         auth.verifyIdentity(
           sign({'nonce': 'expected'}, signingKey: attacker),
+          'oaiapp_test',
+          nonce: 'expected',
+        ),
+        throwsA(isA<ChatGptFailure>()),
+      );
+      await expectLater(
+        auth.verifyIdentity(
+          sign(
+            {'nonce': 'expected'},
+            signingKey: attacker,
+            embedPublicKey: true,
+          ),
           'oaiapp_test',
           nonce: 'expected',
         ),
