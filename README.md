@@ -1,4 +1,4 @@
-# GymIA · Chat y herramientas de entrenamiento (0.3.20)
+# GymIA · Chat y herramientas de entrenamiento (0.3.21)
 
 Bitácora de entrenamiento offline, construida con Flutter para compartir interfaz,
 reglas y persistencia entre Android e iOS. Esta entrega distribuye Android.
@@ -16,10 +16,10 @@ El repositorio público contiene el código y pruebas; las APK y capturas de las
 entregas locales mencionadas en documentos históricos no se incluyen. Tampoco
 incluye claves, firma privada, conversaciones ni bases de datos de usuarios.
 La publicación del código no habilita por sí misma OAuth ni el uso de un plan
-ChatGPT: esa integración sigue siendo una propuesta pendiente de implementación
-y validación, descrita en [viabilidad](specs/02-chatgpt-sign-in/feasibility.md).
+ChatGPT: esa integración está implementada en Android, con validación de admisión real pendiente, descrita en [viabilidad](specs/02-chatgpt-sign-in/feasibility.md).
 
 ## Funciones
+- Continuar con ChatGPT en Android: identidad y permiso de uso del plan por separado, modelos de la cuenta, renovación y desconexión. Solo para cuentas elegibles; otros proveedores se conservan. [Implementación y límites](docs/0.3.21-CHATGPT.md).
 - Inicio como chat: micrófono en el campo y + con cámara, fotos, PDF, audio y carga de hojas. Las herramientas de gestión quedan en el menú.
 - Verificar proveedor/modelo antes de habilitar asistente y nuevas actividades. Comprobaciones automáticas sin inferencias de pago. Parar y guardar notas de una actividad en curso siguen disponibles sin conexión.
 - Conexión Google guardada y renovación silenciosa: leer la hoja actual antes de consultar al modelo; interpretar su formato y enviar sesiones desde el chat o al finalizar, con pendientes recuperables. Crear una hoja nueva si se elige y conservar la revisión manual opcional. [Uso, pruebas y límites de 0.3.20](docs/0.3.20-AUTOMATIC-SHEETS.md).
@@ -60,7 +60,7 @@ En la pantalla de actividad, el borrador se conserva y los mensajes se guardan l
 Los datos y notas se conservan localmente. El inicio del flujo con IA requiere un proveedor/modelo verificado y conexión. La importación directa de Google Sheets requiere autorizar una cuenta y conexión; desde 0.3.3 la APK solicita permiso de Internet.
 
 ## Instalar
-La APK de esta entrega se encuentra en `releases/gymia-0.3.20.apk`. Detalles: [0.3.20-AUTOMATIC-SHEETS.md](docs/0.3.20-AUTOMATIC-SHEETS.md). La conexión se configura una vez desde «Enviar a Google Sheets» y se reutiliza desde el chat y al finalizar sesiones. Se recuperan concesiones existentes, se renuevan tokens sin ventanas y las revocaciones se comunican como atención necesaria. Citas legibles en el tema oscuro. Las pruebas de los nuevos flujos Google usan transporte controlado; el permiso y envío reales se verifican en el móvil. La identidad y el vínculo a cuenta se verifican de nuevo en esta versión; la autorización real multiusuario aún requiere validación. Conserva UTF-8 y la distinción entre glm-5.3 y glm-5.3-flash para imágenes.
+La APK local de esta entrega es `releases/gymia-0.3.21.apk` (no se incluye en Git). Detalles de ChatGPT: [0.3.21-CHATGPT.md](docs/0.3.21-CHATGPT.md); conexión Google: [0.3.20-AUTOMATIC-SHEETS.md](docs/0.3.20-AUTOMATIC-SHEETS.md). La conexión se configura una vez desde «Enviar a Google Sheets» y se reutiliza desde el chat y al finalizar sesiones. Se recuperan concesiones existentes, se renuevan tokens sin ventanas y las revocaciones se comunican como atención necesaria. Citas legibles en el tema oscuro. Las pruebas de los nuevos flujos Google usan transporte controlado; el permiso y envío reales se verifican en el móvil. La identidad y el vínculo a cuenta se verifican de nuevo en esta versión; la autorización real multiusuario aún requiere validación. Conserva UTF-8 y la distinción entre glm-5.3 y glm-5.3-flash para imágenes.
 Compatible con Android 6.0 (API 23) o posterior.
 
 1. Copiar la APK al teléfono (por USB, Drive u otro medio elegido).

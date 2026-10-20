@@ -1,7 +1,7 @@
 name: gymia
 description: Bitácora de entrenamiento local para Android e iOS.
 publish_to: none
-version: 0.3.20+23
+version: 0.3.21+24
 environment:
   sdk: '>=3.7.0 <4.0.0'
 dependencies:
@@ -23,6 +23,8 @@ dependencies:
   flutter_secure_storage: 9.2.4
   speech_to_text: 7.0.0
   flutter_markdown_plus: 1.0.7
+  crypto: ^3.0.6
+  jose: ^0.3.5
 dev_dependencies:
   flutter_test:
     sdk: flutter

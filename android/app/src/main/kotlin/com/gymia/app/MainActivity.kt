@@ -77,6 +77,31 @@ class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.gymia.app/chatgpt")
+            .setMethodCallHandler { call, result ->
+                try {
+                    when (call.method) {
+                        "openBrowser" -> {
+                            val uri = Uri.parse(call.argument<String>("url") ?: "")
+                            val allowed = uri.scheme == "https" && uri.userInfo == null &&
+                                ((uri.host == "auth.openai.com" && uri.path == "/api/accounts/authorize") ||
+                                 (uri.host == "chatgpt.com" && uri.path == "/settings/usage"))
+                            require(allowed)
+                            // The browser owns authentication. Never use an embedded WebView.
+                            startActivity(Intent(Intent.ACTION_VIEW, uri).addCategory(Intent.CATEGORY_BROWSABLE))
+                            result.success(null)
+                        }
+                        "resumeApp" -> {
+                            startActivity(Intent(this, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_SINGLE_TOP))
+                            result.success(null)
+                        }
+                        else -> result.notImplemented()
+                    }
+                } catch (_: Exception) {
+                    // Authorization URLs may contain an ID-token hint: never log them.
+                    result.error("CHATGPT_BROWSER", "No se pudo abrir el navegador.", null)
+                }
+            }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.gymia.app/rest-notifications")
             .setMethodCallHandler { call, result ->
                 try {

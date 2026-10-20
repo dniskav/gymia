@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../data/ai_client.dart';
+import '../data/chatgpt_auth.dart';
 import '../data/ai_model_catalog.dart';
 import '../data/ai_settings_store.dart';
 import '../domain/ai_config.dart';
@@ -13,8 +14,10 @@ class AiSettingsScreen extends StatefulWidget {
     this.catalog,
     this.client,
     this.profileId = 'local',
+    this.chatGptAuth,
   });
   final String profileId;
+  final ChatGptAuth? chatGptAuth;
   final AiModelCatalog? catalog;
   final AiClient? client;
   @override
@@ -26,6 +29,12 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
   final model = TextEditingController();
   final key = TextEditingController();
   late final store = AiSettingsStore(profileId: widget.profileId);
+  late final chatGpt =
+      widget.chatGptAuth ?? ChatGptAuth(profileId: widget.profileId);
+  List<ChatGptAccount> chatGptAccounts = [];
+  String? chatGptClientId;
+  ChatGptAccount? get selectedChatGpt =>
+      chatGptAccounts.where((a) => a.clientId == chatGptClientId).firstOrNull;
   AiService service = AiService.opencodeGo;
   AiProtocol protocol = AiProtocol.chatCompletions;
   bool busy = true;
@@ -47,6 +56,7 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
   Future<void> load() async {
     try {
       final config = await store.load();
+      final accounts = await chatGpt.accounts();
       if (!mounted) return;
       setState(() {
         service = config?.service ?? AiService.opencodeGo;
@@ -54,6 +64,8 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
         base.text = config?.baseUrl ?? service.baseUrl;
         model.text = config?.model ?? '';
         key.text = config?.apiKey ?? '';
+        chatGptAccounts = accounts;
+        chatGptClientId = config?.chatGptClientId;
       });
     } catch (_) {
       if (mounted) {
@@ -62,7 +74,10 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
     } finally {
       if (mounted) setState(() => busy = false);
     }
-    if (mounted && key.text.trim().isNotEmpty) await fetchModels();
+    if (mounted &&
+        (key.text.trim().isNotEmpty || selectedChatGpt?.canUsePlan == true)) {
+      await fetchModels();
+    }
   }
 
   AiConfig config() => AiConfig(
@@ -70,8 +85,58 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
     baseUrl: base.text.trim(),
     model: model.text.trim(),
     protocol: protocol,
-    apiKey: key.text.trim(),
+    apiKey: service == AiService.chatgpt ? '' : key.text.trim(),
+    chatGptClientId: service == AiService.chatgpt ? chatGptClientId : null,
+    profileId: widget.profileId,
   );
+
+  Future<void> connectChatGpt({
+    bool usePlan = false,
+    bool newAccount = false,
+  }) async {
+    await run(() async {
+      final account = await chatGpt.connect(
+        clientId: newAccount ? null : chatGptClientId,
+        usePlan:
+            usePlan || (!newAccount && selectedChatGpt?.canUsePlan == true),
+        consent: usePlan,
+        newRegistration: newAccount,
+      );
+      final accounts = await chatGpt.accounts();
+      if (!mounted) return;
+      setState(() {
+        invalidateCatalog();
+        model.clear();
+        chatGptAccounts = accounts;
+        chatGptClientId = account.clientId;
+        status =
+            account.canUsePlan
+                ? 'Cuenta conectada. Elige un modelo y prueba la conexión para usar el asistente.'
+                : 'Identidad conectada. Puedes autorizar por separado el uso de tu plan ChatGPT.';
+      });
+    });
+    if (mounted && selectedChatGpt?.canUsePlan == true) await fetchModels();
+  }
+
+  Future<void> disconnectChatGpt() => run(() async {
+    final id = chatGptClientId;
+    if (id == null) return;
+    final revoked = await chatGpt.disconnect(id);
+    final saved = await store.load();
+    if (saved?.usesChatGpt == true && saved?.chatGptClientId == id) {
+      await store.delete();
+    }
+    final accounts = await chatGpt.accounts();
+    if (!mounted) return;
+    setState(() {
+      invalidateCatalog();
+      chatGptAccounts = accounts;
+      status =
+          revoked
+              ? 'Sesión ChatGPT desconectada.'
+              : 'Sesión desconectada en este móvil. No se confirmó la revocación remota; desconecta GymIA también en los ajustes de ChatGPT.';
+    });
+  });
 
   Future<void> run(Future<void> Function() action) async {
     if (busy) return;
@@ -140,7 +205,9 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
           }
         }
         catalogStatus =
-            '${result.length} modelos obtenidos del proveedor. La prueba de conexión confirma si tu clave puede usar el elegido.';
+            service == AiService.chatgpt
+                ? 'Modelos disponibles para esta cuenta: ${result.length}. La prueba de conexión confirma el acceso al elegido.'
+                : '${result.length} modelos obtenidos del proveedor. La prueba de conexión confirma si tu clave puede usar el elegido.';
       });
     } on ValidationException catch (e) {
       if (mounted && ticket == catalogRequest) {
@@ -153,7 +220,9 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
       if (mounted && ticket == catalogRequest) {
         setState(() {
           catalogStatus =
-              'No se pudo obtener el catálogo. Puedes volver a intentarlo o indicar el modelo manualmente.';
+              service == AiService.chatgpt
+                  ? 'No se pudo obtener el catálogo de esta cuenta. Comprueba la conexión e inténtalo de nuevo.'
+                  : 'No se pudo obtener el catálogo. Puedes volver a intentarlo o indicar el modelo manualmente.';
           manualModel = true;
         });
       }
@@ -166,6 +235,7 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
 
   @override
   void dispose() {
+    unawaited(chatGpt.cancel());
     catalogDebounce?.cancel();
     catalogRequest++;
     base.dispose();
@@ -186,7 +256,7 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
         ),
         const SizedBox(height: 12),
         const Text(
-          'Introduce aquí tu propia clave API. Al enviar un mensaje, el proveedor elegido recibe la conversación reciente y el contexto de entrenamiento mostrado por GymIA. La clave se guarda de forma segura en este móvil y no se incluye en las copias de entrenamiento.',
+          'Conecta ChatGPT o introduce tu propia clave API. Al enviar un mensaje, el proveedor elegido recibe la conversación reciente, los adjuntos enviados y el contexto de entrenamiento. Las credenciales se guardan de forma segura en este móvil y no se incluyen en las copias de entrenamiento.',
         ),
         const SizedBox(height: 20),
         DropdownButtonFormField<AiService>(
@@ -212,6 +282,10 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
                       status = null;
                       manualModel = false;
                     });
+                    if (s == AiService.chatgpt &&
+                        selectedChatGpt?.canUsePlan == true) {
+                      unawaited(fetchModels());
+                    }
                   },
         ),
         const SizedBox(height: 16),
@@ -230,24 +304,99 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
           ),
           const SizedBox(height: 16),
         ],
-        TextField(
-          key: const Key('ai-api-key'),
-          controller: key,
-          enabled: !busy,
-          onChanged: keyChanged,
-          onSubmitted: (_) => fetchModels(),
-          obscureText: !reveal,
-          autocorrect: false,
-          enableSuggestions: false,
-          decoration: InputDecoration(
-            labelText: 'Clave API',
-            suffixIcon: IconButton(
-              tooltip: reveal ? 'Ocultar clave' : 'Mostrar clave',
-              onPressed: () => setState(() => reveal = !reveal),
-              icon: Icon(reveal ? Icons.visibility_off : Icons.visibility),
+        if (service == AiService.chatgpt) ...[
+          const Text(
+            'Usa tu plan si tu cuenta y espacio son elegibles. El uso consume sus límites compartidos. No da acceso a tus conversaciones de ChatGPT.',
+          ),
+          if (chatGptAccounts.isNotEmpty)
+            DropdownButtonFormField<String>(
+              key: ValueKey('chatgpt-account-$chatGptClientId'),
+              value: chatGptClientId,
+              isExpanded: true,
+              decoration: const InputDecoration(labelText: 'Cuenta ChatGPT'),
+              items: [
+                for (final account in chatGptAccounts)
+                  DropdownMenuItem(
+                    value: account.clientId,
+                    child: Text(account.label, overflow: TextOverflow.ellipsis),
+                  ),
+              ],
+              onChanged:
+                  busy
+                      ? null
+                      : (id) {
+                        setState(() {
+                          chatGptClientId = id;
+                          invalidateCatalog();
+                          model.clear();
+                        });
+                        if (selectedChatGpt?.canUsePlan == true) {
+                          unawaited(fetchModels());
+                        }
+                      },
+            ),
+          Text(
+            selectedChatGpt?.connected == true
+                ? selectedChatGpt!.canUsePlan
+                    ? 'Conectada · permiso de uso del plan concedido'
+                    : 'Conectada · solo identidad'
+                : 'ChatGPT sin conectar',
+          ),
+          OutlinedButton(
+            key: const Key('chatgpt-connect'),
+            onPressed: busy ? null : () => connectChatGpt(),
+            child: const Text('Continuar con ChatGPT'),
+          ),
+          if (selectedChatGpt?.connected == true)
+            FilledButton(
+              key: const Key('chatgpt-enable-plan'),
+              onPressed: busy ? null : () => connectChatGpt(usePlan: true),
+              child: Text(
+                selectedChatGpt!.canUsePlan
+                    ? 'Revisar permiso de uso del plan'
+                    : 'Autorizar uso de mi plan ChatGPT',
+              ),
+            ),
+          if (chatGptAccounts.isNotEmpty)
+            TextButton(
+              onPressed: busy ? null : () => connectChatGpt(newAccount: true),
+              child: const Text('Añadir otra cuenta o espacio'),
+            ),
+          TextButton(
+            onPressed: busy ? null : () => run(chatGpt.showUsage),
+            child: const Text('Ver uso y permisos en ChatGPT'),
+          ),
+          if (selectedChatGpt?.connected == true)
+            TextButton(
+              key: const Key('chatgpt-disconnect'),
+              onPressed: busy ? null : disconnectChatGpt,
+              child: const Text('Desconectar ChatGPT'),
+            ),
+          if (busy)
+            TextButton(
+              key: const Key('chatgpt-cancel'),
+              onPressed: chatGpt.cancel,
+              child: const Text('Cancelar conexión'),
+            ),
+        ] else
+          TextField(
+            key: const Key('ai-api-key'),
+            controller: key,
+            enabled: !busy,
+            onChanged: keyChanged,
+            onSubmitted: (_) => fetchModels(),
+            obscureText: !reveal,
+            autocorrect: false,
+            enableSuggestions: false,
+            decoration: InputDecoration(
+              labelText: 'Clave API',
+              suffixIcon: IconButton(
+                tooltip: reveal ? 'Ocultar clave' : 'Mostrar clave',
+                onPressed: () => setState(() => reveal = !reveal),
+                icon: Icon(reveal ? Icons.visibility_off : Icons.visibility),
+              ),
             ),
           ),
-        ),
         const SizedBox(height: 12),
         OutlinedButton.icon(
           key: const Key('ai-load-models'),
@@ -310,16 +459,17 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
               'Modelo actual: ${model.text}. Se conserva aunque no aparezca en el catálogo.',
             ),
           ),
-        TextButton(
-          onPressed:
-              busy ? null : () => setState(() => manualModel = !manualModel),
-          child: Text(
-            manualModel
-                ? 'Ocultar identificador manual'
-                : 'Introducir modelo manualmente',
+        if (service != AiService.chatgpt)
+          TextButton(
+            onPressed:
+                busy ? null : () => setState(() => manualModel = !manualModel),
+            child: Text(
+              manualModel
+                  ? 'Ocultar identificador manual'
+                  : 'Introducir modelo manualmente',
+            ),
           ),
-        ),
-        if (manualModel)
+        if (manualModel && service != AiService.chatgpt)
           TextField(
             key: const Key('ai-model-manual'),
             controller: model,
@@ -340,51 +490,54 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
             'Go está orientado a agentes de programación. Esta conexión se identifica como GymIA; comprueba con tu proveedor si admite este uso. No se cambia automáticamente a Zen ni a otro servicio.',
           ),
         ],
-        ExpansionTile(
-          title: const Text('Configuración de la API'),
-          children: [
-            if (service != AiService.custom)
-              TextField(
-                key: const Key('ai-base-url'),
-                controller: base,
-                enabled: !busy,
-                onChanged: (_) => setState(invalidateCatalog),
-                autocorrect: false,
-                enableSuggestions: false,
-                decoration: const InputDecoration(labelText: 'URL base HTTPS'),
-              ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<AiProtocol>(
-              value: protocol,
-              decoration: const InputDecoration(
-                labelText: 'Formato compatible con el modelo',
-              ),
-              items: [
-                for (final p in AiProtocol.values)
-                  DropdownMenuItem(
-                    value: p,
-                    child: Text(switch (p) {
-                      AiProtocol.chatCompletions => 'Chat Completions',
-                      AiProtocol.responses => 'Responses',
-                      AiProtocol.anthropic => 'Anthropic Messages',
-                      AiProtocol.gemini => 'Gemini',
-                    }),
+        if (service != AiService.chatgpt)
+          ExpansionTile(
+            title: const Text('Configuración de la API'),
+            children: [
+              if (service != AiService.custom)
+                TextField(
+                  key: const Key('ai-base-url'),
+                  controller: base,
+                  enabled: !busy,
+                  onChanged: (_) => setState(invalidateCatalog),
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  decoration: const InputDecoration(
+                    labelText: 'URL base HTTPS',
                   ),
-              ],
-              onChanged:
-                  busy
-                      ? null
-                      : (p) {
-                        if (p != null) {
-                          setState(() {
-                            invalidateCatalog();
-                            protocol = p;
-                          });
-                        }
-                      },
-            ),
-          ],
-        ),
+                ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<AiProtocol>(
+                value: protocol,
+                decoration: const InputDecoration(
+                  labelText: 'Formato compatible con el modelo',
+                ),
+                items: [
+                  for (final p in AiProtocol.values)
+                    DropdownMenuItem(
+                      value: p,
+                      child: Text(switch (p) {
+                        AiProtocol.chatCompletions => 'Chat Completions',
+                        AiProtocol.responses => 'Responses',
+                        AiProtocol.anthropic => 'Anthropic Messages',
+                        AiProtocol.gemini => 'Gemini',
+                      }),
+                    ),
+                ],
+                onChanged:
+                    busy
+                        ? null
+                        : (p) {
+                          if (p != null) {
+                            setState(() {
+                              invalidateCatalog();
+                              protocol = p;
+                            });
+                          }
+                        },
+              ),
+            ],
+          ),
         const SizedBox(height: 16),
         FilledButton(
           onPressed:
@@ -424,24 +577,29 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
                       );
                     }
                   }),
-          child: const Text('Probar conexión · usa tu API'),
+          child: Text(
+            service == AiService.chatgpt
+                ? 'Probar conexión · usa mi plan ChatGPT'
+                : 'Probar conexión · usa tu API',
+          ),
         ),
-        TextButton(
-          onPressed:
-              busy
-                  ? null
-                  : () => run(() async {
-                    await store.delete();
-                    setState(invalidateCatalog);
-                    key.clear();
-                    if (mounted) {
-                      setState(
-                        () => status = 'Configuración y clave eliminadas.',
-                      );
-                    }
-                  }),
-          child: const Text('Eliminar configuración y clave'),
-        ),
+        if (service != AiService.chatgpt)
+          TextButton(
+            onPressed:
+                busy
+                    ? null
+                    : () => run(() async {
+                      await store.delete();
+                      setState(invalidateCatalog);
+                      key.clear();
+                      if (mounted) {
+                        setState(
+                          () => status = 'Configuración y clave eliminadas.',
+                        );
+                      }
+                    }),
+            child: const Text('Eliminar configuración y clave'),
+          ),
         if (busy) const LinearProgressIndicator(),
         if (status != null)
           Padding(

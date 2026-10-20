@@ -2,6 +2,8 @@
 
 Revisión: 20/10/2026, código 0.3.20+23 y documentación oficial OpenAI consultada ese día. Incluye los diez requisitos de ChatGPT recibidos junto con la petición multiusuario de Sheets. Revisión previa a implementar: no modifica APK, credenciales, históricos ni interfaz de entrenamiento.
 
+Actualización de implementación: véase [0.3.21](../../docs/0.3.21-CHATGPT.md). El resto de este documento conserva la evaluación previa; no equivale a resultados de admisión real.
+
 ## Dictamen y elegibilidad
 
 **Viable como integración propuesta, con condiciones pendientes; todavía no validada de extremo a extremo.** La ruta oficial para clientes de código abierto y ejecución local permite usar el plan ChatGPT sin secreto de cliente ni API key de partner. Las aplicaciones de pago o alojadas remotamente deben seguir la vía de interés/aprobación correspondiente. Fuente: [OpenAI Docs: alcance de la integración OSS](https://developers.openai.com/siwc/token-sharing-open-source).

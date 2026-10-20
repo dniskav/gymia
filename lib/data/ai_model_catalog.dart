@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import '../domain/ai_config.dart';
+import 'chatgpt_auth.dart';
 import '../domain/workout.dart';
 
 class AiModelOption {
@@ -29,9 +30,10 @@ class ModelCatalogUnsupportedException extends ValidationException {
 /// Catalogs come from the selected endpoint. No embedded list of model IDs.
 /// Listing is separate from inference and never sends training/chat contents.
 class AiModelCatalog {
-  AiModelCatalog({ModelCatalogTransport? transport})
-    : _transport = transport ?? _get;
-  final ModelCatalogTransport _transport;
+  AiModelCatalog({ModelCatalogTransport? transport, this.chatGptAuth})
+    : _transport = transport;
+  final ModelCatalogTransport? _transport;
+  final ChatGptAuth? chatGptAuth;
 
   Future<List<AiModelOption>> list(AiConfig config) async {
     config.validate(requireModel: false);
@@ -73,14 +75,27 @@ class AiModelCatalog {
         if (nativeGemini) 'pageSize': '1000',
         if (cursor != null) (nativeGemini ? 'pageToken' : 'after_id'): cursor,
       };
-      final response = await _transport(
-        query.isEmpty ? endpoint : endpoint.replace(queryParameters: query),
-        headers,
-      );
-      final data = response[nativeGemini ? 'models' : 'data'];
+      final target =
+          query.isEmpty ? endpoint : endpoint.replace(queryParameters: query);
+      Future<Map<String, dynamic>> send() =>
+          _transport != null
+              ? _transport(target, headers)
+              : _get(target, headers, chatGpt: config.usesChatGpt);
+      final response =
+          config.usesChatGpt
+              ? await (chatGptAuth ?? ChatGptAuth(profileId: config.profileId))
+                  .authorized(config.chatGptClientId!, (token) {
+                    headers['Authorization'] = 'Bearer $token';
+                    return send();
+                  })
+              : await send();
+      final data =
+          response[nativeGemini || config.usesChatGpt ? 'models' : 'data'];
       if (data is! List) {
-        throw const ValidationException(
-          'El proveedor no devolvió un catálogo de modelos compatible. Puedes indicar el modelo manualmente.',
+        throw ValidationException(
+          config.usesChatGpt
+              ? 'ChatGPT no devolvió un catálogo compatible. Revisa la conexión o elige otro proveedor.'
+              : 'El proveedor no devolvió un catálogo de modelos compatible. Puedes indicar el modelo manualmente.',
         );
       }
       for (final raw in data) {
@@ -90,7 +105,13 @@ class AiModelCatalog {
             (methods is! List || !methods.contains('generateContent'))) {
           continue;
         }
-        final rawId = nativeGemini ? raw['name'] : raw['id'];
+        if (config.usesChatGpt && raw['visibility'] != 'list') continue;
+        final rawId =
+            config.usesChatGpt
+                ? raw['slug']
+                : nativeGemini
+                ? raw['name']
+                : raw['id'];
         if (rawId is! String) continue;
         final id =
             nativeGemini ? rawId.replaceFirst(RegExp(r'^models/'), '') : rawId;
@@ -162,8 +183,10 @@ class AiModelCatalog {
               : null;
       if (next == null || next == '') {
         if (models.isEmpty) {
-          throw const ValidationException(
-            'El proveedor no devolvió modelos de conversación. Puedes indicar uno manualmente.',
+          throw ValidationException(
+            config.usesChatGpt
+                ? 'No hay modelos disponibles para esta cuenta ChatGPT. Revisa el permiso o usa otro proveedor.'
+                : 'El proveedor no devolvió modelos de conversación. Puedes indicar uno manualmente.',
           );
         }
         return List<AiModelOption>.unmodifiable(models.values);
@@ -182,8 +205,9 @@ class AiModelCatalog {
 
   static Future<Map<String, dynamic>> _get(
     Uri uri,
-    Map<String, String> headers,
-  ) async {
+    Map<String, String> headers, {
+    bool chatGpt = false,
+  }) async {
     final client =
         HttpClient()..connectionTimeout = const Duration(seconds: 15);
     try {
@@ -196,6 +220,24 @@ class AiModelCatalog {
           throw const ModelCatalogUnsupportedException();
         }
         if (response.statusCode < 200 || response.statusCode >= 300) {
+          if (chatGpt) {
+            final bytes = <int>[];
+            await for (final chunk in response) {
+              if (bytes.length + chunk.length > 65536) break;
+              bytes.addAll(chunk);
+            }
+            Map<String, dynamic> error = {};
+            try {
+              error = Map<String, dynamic>.from(
+                jsonDecode(utf8.decode(bytes)) as Map,
+              );
+            } catch (_) {}
+            throw ChatGptFailure.response(
+              response.statusCode,
+              error,
+              requestId: response.headers.value('x-request-id'),
+            );
+          }
           throw ValidationException(switch (response.statusCode) {
             401 => 'El proveedor rechazó la clave al consultar sus modelos.',
             403 =>

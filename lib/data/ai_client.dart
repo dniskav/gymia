@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'ai_stream_response.dart';
+import 'chatgpt_auth.dart';
 import 'dart:typed_data';
 import '../domain/ai_config.dart';
 import '../domain/workout.dart';
@@ -125,7 +126,8 @@ typedef AiTransport =
     );
 
 class AiClient {
-  AiClient({AiTransport? transport}) : _transport = transport;
+  AiClient({AiTransport? transport, this.chatGptAuth}) : _transport = transport;
+  final ChatGptAuth? chatGptAuth;
   final AiTransport? _transport;
 
   Future<String> reply(
@@ -192,7 +194,7 @@ class AiClient {
         headers['Authorization'] = 'Bearer ${config.apiKey}';
         body = {
           'model': config.modelId,
-          'stream': onText != null,
+          'stream': config.usesChatGpt || onText != null,
           'store': false,
           'instructions': system,
           'input': messages.map((m) => m.forApi(config.protocol)).toList(),
@@ -233,16 +235,26 @@ class AiClient {
         };
     }
     final uri = Uri.parse('$base$path');
-    final response =
+    Future<Map<String, dynamic>> send() =>
         _transport != null
-            ? await _transport(uri, headers, body)
-            : await _http(
+            ? _transport(uri, headers, body)
+            : _http(
               uri,
               headers,
               body,
               protocol: config.protocol,
               onText: onText,
+              chatGpt: config.usesChatGpt,
             );
+    final response =
+        config.usesChatGpt
+            ? await (chatGptAuth ?? ChatGptAuth(profileId: config.profileId))
+                .authorized(config.chatGptClientId!, (token) {
+                  headers['Authorization'] = 'Bearer $token';
+                  headers['Accept'] = 'text/event-stream';
+                  return send();
+                })
+            : await send();
     try {
       final String text;
       switch (config.protocol) {
@@ -289,6 +301,7 @@ class AiClient {
     Map<String, String> headers,
     Map<String, dynamic> body, {
     required AiProtocol protocol,
+    bool chatGpt = false,
     void Function(String text)? onText,
   }) async {
     final client =
@@ -304,6 +317,26 @@ class AiClient {
         request.add(utf8.encode(jsonEncode(body)));
         final response = await request.close();
         if (response.statusCode < 200 || response.statusCode >= 300) {
+          if (chatGpt) {
+            final bytes = <int>[];
+            await for (final chunk in response) {
+              if (bytes.length + chunk.length > 65536) break;
+              bytes.addAll(chunk);
+            }
+            Map<String, dynamic> error = {};
+            try {
+              error = Map<String, dynamic>.from(
+                jsonDecode(utf8.decode(bytes)) as Map,
+              );
+            } catch (_) {
+              /* Non-JSON admission failure. */
+            }
+            throw ChatGptFailure.response(
+              response.statusCode,
+              error,
+              requestId: response.headers.value('x-request-id'),
+            );
+          }
           final message = switch (response.statusCode) {
             400 =>
               'El proveedor rechazó la solicitud (400). Revisa el protocolo de API y si ese modelo admite el tipo de adjunto enviado.',
@@ -319,7 +352,7 @@ class AiClient {
           throw ValidationException(message);
         }
         if (response.headers.contentType?.mimeType == 'text/event-stream') {
-          final result = AiStreamResponse(protocol);
+          final result = AiStreamResponse(protocol, chatGpt: chatGpt);
           final eventLines = <String>[];
           var wireBytes = 0;
           final clock = Stopwatch()..start();
@@ -360,6 +393,11 @@ class AiClient {
           }
           dispatch();
           return result.response();
+        }
+        if (chatGpt) {
+          throw const ValidationException(
+            'ChatGPT no devolvió el flujo de respuesta esperado. No se ha ejecutado ninguna acción.',
+          );
         }
         final bytes = <int>[];
         await for (final chunk in response) {

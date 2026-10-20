@@ -6,6 +6,7 @@ enum AiService {
   opencodeGo,
   opencodeZen,
   openai,
+  chatgpt,
   anthropic,
   gemini,
   openrouter,
@@ -20,6 +21,7 @@ extension AiServiceInfo on AiService {
     AiService.opencodeGo => 'OpenCode Go',
     AiService.opencodeZen => 'OpenCode Zen',
     AiService.openai => 'OpenAI',
+    AiService.chatgpt => 'ChatGPT · usar mi plan',
     AiService.anthropic => 'Claude / Anthropic',
     AiService.gemini => 'Google Gemini',
     AiService.openrouter => 'OpenRouter',
@@ -31,7 +33,7 @@ extension AiServiceInfo on AiService {
   String get baseUrl => switch (this) {
     AiService.opencodeGo => 'https://opencode.ai/zen/go/v1',
     AiService.opencodeZen => 'https://opencode.ai/zen/v1',
-    AiService.openai => 'https://api.openai.com/v1',
+    AiService.openai || AiService.chatgpt => 'https://api.openai.com/v1',
     AiService.anthropic => 'https://api.anthropic.com/v1',
     AiService.gemini => 'https://generativelanguage.googleapis.com/v1beta',
     AiService.openrouter => 'https://openrouter.ai/api/v1',
@@ -41,7 +43,7 @@ extension AiServiceInfo on AiService {
     AiService.custom => '',
   };
   AiProtocol get defaultProtocol => switch (this) {
-    AiService.openai => AiProtocol.responses,
+    AiService.openai || AiService.chatgpt => AiProtocol.responses,
     AiService.anthropic => AiProtocol.anthropic,
     AiService.gemini => AiProtocol.gemini,
     _ => AiProtocol.chatCompletions,
@@ -78,10 +80,15 @@ class AiConfig {
     required this.model,
     required this.protocol,
     required this.apiKey,
+    this.chatGptClientId,
+    this.profileId = 'local',
   });
   final AiService service;
   final String baseUrl, model, apiKey;
   final AiProtocol protocol;
+  final String? chatGptClientId;
+  final String profileId;
+  bool get usesChatGpt => service == AiService.chatgpt;
 
   String get modelId => switch (service) {
     AiService.opencodeGo => model.replaceFirst(RegExp(r'^opencode-go/'), ''),
@@ -97,6 +104,16 @@ class AiConfig {
           : null;
 
   void validate({bool requireModel = true}) {
+    if (usesChatGpt &&
+        (baseUrl != AiService.chatgpt.baseUrl ||
+            protocol != AiProtocol.responses ||
+            chatGptClientId == null ||
+            chatGptClientId!.isEmpty ||
+            apiKey.isNotEmpty)) {
+      throw const ValidationException(
+        'Conecta tu cuenta de ChatGPT desde ajustes de IA.',
+      );
+    }
     final uri = Uri.tryParse(baseUrl);
     if (uri == null ||
         uri.scheme != 'https' ||
@@ -116,7 +133,8 @@ class AiConfig {
         'Introduce el identificador exacto del modelo.',
       );
     }
-    if (apiKey.trim().isEmpty || apiKey.contains(RegExp(r'[\r\n]'))) {
+    if (!usesChatGpt &&
+        (apiKey.trim().isEmpty || apiKey.contains(RegExp(r'[\r\n]')))) {
       throw const ValidationException('Introduce tu clave API del proveedor.');
     }
   }
@@ -127,6 +145,8 @@ class AiConfig {
     'model': model,
     'protocol': protocol.name,
     'apiKey': apiKey,
+    if (usesChatGpt) 'chatGptClientId': chatGptClientId,
+    if (usesChatGpt) 'profileId': profileId,
   };
   factory AiConfig.fromJson(Map<String, dynamic> value) => AiConfig(
     service: AiService.values.byName(value['service'] as String),
@@ -134,5 +154,7 @@ class AiConfig {
     model: value['model'] as String,
     protocol: AiProtocol.values.byName(value['protocol'] as String),
     apiKey: value['apiKey'] as String,
+    chatGptClientId: value['chatGptClientId'] as String?,
+    profileId: value['profileId'] as String? ?? 'local',
   );
 }

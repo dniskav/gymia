@@ -10,13 +10,25 @@ class AiSettingsStore {
   String get _key => profileStorageKey('gymia.ai.config.v1', profileId);
   Future<AiConfig?> load() async {
     final source = await _storage.read(key: _key);
-    return source == null
-        ? null
-        : AiConfig.fromJson(jsonDecode(source) as Map<String, dynamic>);
+    final config =
+        source == null
+            ? null
+            : AiConfig.fromJson(jsonDecode(source) as Map<String, dynamic>);
+    if (config != null && config.usesChatGpt && config.profileId != profileId) {
+      throw const FormatException(
+        'La conexión ChatGPT pertenece a otro perfil.',
+      );
+    }
+    return config;
   }
 
   Future<void> save(AiConfig config) async {
     config.validate();
+    if (config.usesChatGpt && config.profileId != profileId) {
+      throw const FormatException(
+        'La conexión ChatGPT pertenece a otro perfil.',
+      );
+    }
     final previous = await load();
     if (previous?.toJson().toString() != config.toJson().toString()) {
       await _storage.delete(key: '$_key.verified');

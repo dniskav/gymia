@@ -1,10 +1,12 @@
 import '../domain/ai_config.dart';
+import 'chatgpt_auth.dart';
 import '../domain/workout.dart';
 
 /// Accumulates only visible assistant text. Reasoning and tool arguments are
 /// never rendered, and an interrupted stream is not a completed action.
 class AiStreamResponse {
-  AiStreamResponse(this.protocol);
+  AiStreamResponse(this.protocol, {this.chatGpt = false});
+  final bool chatGpt;
   final AiProtocol protocol;
   String text = '';
   bool complete = false;
@@ -24,6 +26,16 @@ class AiStreamResponse {
       .join('');
 
   void add(Map<String, dynamic> event) {
+    final responseError =
+        (event['response'] is Map
+            ? event['response'] as Map
+            : const {})['error'];
+    if (chatGpt && (event['error'] != null || responseError != null)) {
+      // A stream failure is never retried as an HTTP authentication failure.
+      throw ChatGptFailure.response(0, {
+        'error': event['error'] ?? responseError,
+      });
+    }
     if (event['error'] != null || event['type'] == 'error') throw interrupted;
     switch (protocol) {
       case AiProtocol.chatCompletions:
