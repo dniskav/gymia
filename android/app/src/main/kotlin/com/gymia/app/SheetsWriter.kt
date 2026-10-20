@@ -3,6 +3,7 @@ package com.gymia.app
 import org.json.JSONArray
 import org.json.JSONObject
 import java.security.MessageDigest
+import java.security.SecureRandom
 
 class SheetsWriteFailure(val code: String, override val message: String) : Exception(message)
 
@@ -82,6 +83,38 @@ class SheetsWriter(private val rpc: (String, Map<String, String>, JSONObject?) -
             val receipt = marker(id(args), key)
             if (receipt != null && receipt.getString("metadataValue") != "$key:${version(args)}") fail("Esta sesión ya se envió y sus datos locales han cambiado. Revisa la hoja antes de corregir ese envío; no se duplicará automáticamente.")
             mapOf("synced" to (receipt != null))
+        }
+        "probeWrite" -> {
+            val spreadsheet = id(args)
+            val title = args.getString("title")
+            if (title.isBlank() || title.length > 100) fail("Elige una pestaña válida.")
+            val range = "'" + title.replace("'", "''") + "'"
+            val selected = rpc("$base/$spreadsheet", mapOf(
+                "ranges" to range, "fields" to "sheets(properties(sheetId,title))"
+            ), null).getJSONArray("sheets")
+            if (selected.length() != 1 || selected.getJSONObject(0).getJSONObject("properties").getString("title") != title) {
+                fail("La pestaña cambió. Selecciónala de nuevo.")
+            }
+            val probeId = SecureRandom().nextInt(1_000_000_000) + 1_000_000_000
+            val marker = args.getString("marker")
+            if (!marker.startsWith("TrackIA prueba ") || marker.length > 100) fail("La prueba no es válida.")
+            val requests = JSONArray()
+                .put(JSONObject().put("addSheet", JSONObject().put("properties", JSONObject()
+                    .put("sheetId", probeId).put("title", "TrackIA prueba temporal $probeId")
+                    .put("hidden", true).put("gridProperties", JSONObject().put("rowCount", 1).put("columnCount", 1)))))
+                .put(JSONObject().put("updateCells", JSONObject()
+                    .put("start", JSONObject().put("sheetId", probeId).put("rowIndex", 0).put("columnIndex", 0))
+                    .put("rows", JSONArray().put(JSONObject().put("values", JSONArray().put(JSONObject()
+                        .put("userEnteredValue", JSONObject().put("stringValue", marker))))))
+                    .put("fields", "userEnteredValue")))
+                .put(JSONObject().put("deleteSheet", JSONObject().put("sheetId", probeId)))
+            rpc("$base/$spreadsheet:batchUpdate", emptyMap(), JSONObject().put("requests", requests))
+            val after = rpc("$base/$spreadsheet", mapOf("fields" to "sheets(properties(sheetId))"), null)
+            val sheets = after.getJSONArray("sheets")
+            if ((0 until sheets.length()).any { sheets.getJSONObject(it).getJSONObject("properties").getInt("sheetId") == probeId }) {
+                fail("La pestaña temporal no se eliminó. Revísala en Google Sheets.")
+            }
+            mapOf("writable" to true, "temporaryTabRemoved" to true)
         }
         "createSpreadsheet" -> {
             val requestId = args.getString("requestId")

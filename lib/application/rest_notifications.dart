@@ -11,6 +11,7 @@ class RestNotificationController extends ChangeNotifier {
   static const channel = MethodChannel('com.gymia.app/rest-notifications');
   bool supported = false, enabled = false, exact = false, busy = false;
   String? error;
+  String? testStatus;
   bool _disposed = false;
   String? _scheduled;
   Future<void> _tail = Future.value();
@@ -48,7 +49,7 @@ class RestNotificationController extends ChangeNotifier {
       enabled = granted == true;
       if (value && !enabled) {
         error =
-            'Permite las notificaciones de GymIA en los ajustes de Android para recibir avisos.';
+            'Permite las notificaciones de TrackIA en los ajustes de Android para recibir avisos.';
       }
       _scheduled = null;
       sync();
@@ -63,6 +64,29 @@ class RestNotificationController extends ChangeNotifier {
   }
 
   Future<void> allowExact() => channel.invokeMethod<void>('exactSettings');
+
+  Future<void> testNotification() async {
+    if (busy || !supported) return;
+    busy = true;
+    testStatus = null;
+    error = null;
+    notifyListeners();
+    try {
+      final posted = await channel.invokeMethod<bool>('test');
+      if (_disposed) return;
+      testStatus =
+          posted == true
+              ? 'Aviso enviado a Android. Comprueba el móvil y, si usas reloj, sus ajustes de notificaciones.'
+              : 'Activa los avisos y concede el permiso de notificaciones en Android antes de probar.';
+    } catch (_) {
+      if (!_disposed) error = 'No se pudo enviar el aviso de prueba.';
+    } finally {
+      if (!_disposed) {
+        busy = false;
+        notifyListeners();
+      }
+    }
+  }
 
   void sync() {
     if (_disposed || !supported || !controller.loaded) return;

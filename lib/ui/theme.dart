@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
-const lime = Color(0xFFD4F876);
-const ink = Color(0xFF111716);
-const panel = Color(0xFF1E2724);
-const muted = Color(0xFFAEBBB4);
+const lime = Color(0xFF63D9E2);
+const ink = Color(0xFF0C2027);
+const panel = Color(0xFF17333B);
+const muted = Color(0xFFACC4C8);
+const trackiaOrange = Color(0xFFFF8A57);
 
 final gymTheme = ThemeData(
   useMaterial3: true,
@@ -12,7 +13,13 @@ final gymTheme = ThemeData(
   colorScheme: ColorScheme.fromSeed(
     seedColor: lime,
     brightness: Brightness.dark,
-  ).copyWith(primary: lime, onPrimary: ink, surface: panel),
+  ).copyWith(
+    primary: lime,
+    onPrimary: ink,
+    secondary: trackiaOrange,
+    onSecondary: ink,
+    surface: panel,
+  ),
   appBarTheme: const AppBarTheme(
     backgroundColor: ink,
     surfaceTintColor: Colors.transparent,
@@ -43,17 +50,21 @@ final gymLightTheme = ThemeData(
   outlinedButtonTheme: gymTheme.outlinedButtonTheme,
   brightness: Brightness.light,
   colorScheme: ColorScheme.fromSeed(
-    seedColor: const Color(0xFF426500),
+    seedColor: const Color(0xFF08788A),
     brightness: Brightness.light,
+  ).copyWith(
+    primary: const Color(0xFF08788A),
+    onPrimary: Colors.white,
+    secondary: const Color(0xFFBB471D),
   ),
-  scaffoldBackgroundColor: const Color(0xFFF6F9F1),
+  scaffoldBackgroundColor: const Color(0xFFF6FAFA),
   appBarTheme: const AppBarTheme(
-    backgroundColor: Color(0xFFF6F9F1),
+    backgroundColor: Color(0xFFF6FAFA),
     foregroundColor: ink,
     surfaceTintColor: Colors.transparent,
   ),
   inputDecorationTheme: gymTheme.inputDecorationTheme.copyWith(
-    fillColor: const Color(0xFFEDF2E6),
+    fillColor: const Color(0xFFE9F3F4),
   ),
   textTheme: ThemeData(brightness: Brightness.light).textTheme,
   primaryTextTheme: ThemeData(brightness: Brightness.light).primaryTextTheme,

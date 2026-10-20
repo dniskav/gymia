@@ -1,7 +1,7 @@
 name: gymia
 description: Bitácora de entrenamiento local para Android e iOS.
 publish_to: none
-version: 0.3.25+28
+version: 0.3.26+29
 environment:
   sdk: '>=3.7.0 <4.0.0'
 dependencies:
@@ -34,3 +34,5 @@ dev_dependencies:
   sqflite_common_ffi: ^2.3.5
 flutter:
   uses-material-design: true
+  assets:
+    - assets/branding/trackia-logo.png

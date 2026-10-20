@@ -23,6 +23,10 @@ class SheetsWriterTest {
                 }
                 endpoint.endsWith(":batchUpdate") -> {
                     val requests = body!!.getJSONArray("requests")
+                    if (requests.getJSONObject(requests.length() - 1).has("deleteSheet")) {
+                        batches.add(body)
+                        return@SheetsWriter JSONObject()
+                    }
                     val metadata = requests.getJSONObject(requests.length() - 1).getJSONObject("createDeveloperMetadata").getJSONObject("developerMetadata")
                     check(markers.none { it.getInt("metadataId") == metadata.getInt("metadataId") })
                     markers.add(metadata)
@@ -131,5 +135,25 @@ class SheetsWriterTest {
         fake.created = false
         try { fake.writer.handle("createSpreadsheet", create); fail("Must not create") } catch (_: SheetsWriteFailure) { }
         assertEquals(1, fake.createCount)
+    }
+    @Test fun writeProbeAddsWritesAndDeletesOnlyItsTemporarySheet() {
+        val fake = GoogleFake()
+        val result = fake.writer.handle("probeWrite", args().put("marker", "TrackIA prueba modelo")) as Map<*, *>
+        assertEquals(true, result["writable"])
+        assertEquals(true, result["temporaryTabRemoved"])
+        val requests = fake.batches.single().getJSONArray("requests")
+        assertEquals(3, requests.length())
+        val created = requests.getJSONObject(0).getJSONObject("addSheet").getJSONObject("properties")
+        assertEquals(true, created.getBoolean("hidden"))
+        val id = created.getInt("sheetId")
+        assertEquals(id, requests.getJSONObject(1).getJSONObject("updateCells").getJSONObject("start").getInt("sheetId"))
+        assertEquals("TrackIA prueba modelo", requests.getJSONObject(1).getJSONObject("updateCells")
+            .getJSONArray("rows").getJSONObject(0).getJSONArray("values").getJSONObject(0)
+            .getJSONObject("userEnteredValue").getString("stringValue"))
+        assertEquals(id, requests.getJSONObject(2).getJSONObject("deleteSheet").getInt("sheetId"))
+        assertTrue(fake.markers.isEmpty())
+        try { fake.writer.handle("probeWrite", args().put("marker", "otro")); fail("Invalid marker") }
+        catch (_: SheetsWriteFailure) { }
+        assertEquals(1, fake.batches.size)
     }
 }

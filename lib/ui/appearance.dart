@@ -17,7 +17,7 @@ class AppearanceScreen extends StatelessWidget {
                 const Padding(
                   padding: EdgeInsets.all(24),
                   child: Text(
-                    'Elige cómo quieres ver GymIA. La elección se guarda en este móvil.',
+                    'Elige cómo quieres ver TrackIA. La elección se guarda en este móvil.',
                   ),
                 ),
                 for (final mode in ThemeMode.values)

@@ -248,7 +248,7 @@ class _GoogleSheetsImportScreenState extends State<GoogleSheetsImportScreen> {
         Text(
           widget.forAssistant
               ? 'Conecta tu cuenta, elige la hoja y su pestaña. Revisa los datos antes de compartirlos con tu asistente.'
-              : 'GymIA usa la autorización de Google para leer tus hojas. Los entrenamientos se guardan en este móvil cuando confirmas la importación.',
+              : 'TrackIA usa la autorización de Google para leer tus hojas. Los datos se guardan en este móvil cuando confirmas la importación.',
         ),
         const SizedBox(height: 16),
         if (authorized) ...[

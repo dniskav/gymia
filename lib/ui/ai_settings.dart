@@ -134,7 +134,7 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
       status =
           revoked
               ? 'Sesión ChatGPT desconectada.'
-              : 'Sesión desconectada en este móvil. No se confirmó la revocación remota; desconecta GymIA también en los ajustes de ChatGPT.';
+              : 'Sesión desconectada en este móvil. No se confirmó la revocación remota; desconecta TrackIA también en los ajustes de ChatGPT.';
     });
   });
 
@@ -487,7 +487,7 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
         if (service == AiService.opencodeGo) ...[
           const SizedBox(height: 12),
           const Text(
-            'Go está orientado a agentes de programación. Esta conexión se identifica como GymIA; comprueba con tu proveedor si admite este uso. No se cambia automáticamente a Zen ni a otro servicio.',
+            'Go está orientado a agentes de programación. Esta conexión se identifica como TrackIA; comprueba con tu proveedor si admite este uso. No se cambia automáticamente a Zen ni a otro servicio.',
           ),
         ],
         if (service != AiService.chatgpt)
@@ -562,11 +562,11 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
                       const [
                         AiMessage(
                           'user',
-                          'Responde brevemente en español para confirmar que funciona el chat de GymIA.',
+                          'Responde brevemente en español para confirmar que funciona el chat de TrackIA.',
                         ),
                       ],
                       system:
-                          'Eres el asistente de gimnasio GymIA. Esta solicitud prueba una conexión real de conversación, no una tarea de programación.',
+                          'Eres el asistente de TrackIA para actividades, enfoque y bienestar. Esta solicitud prueba una conexión real de conversación, no una tarea de programación.',
                       sessionId: const Uuid().v4(),
                     );
                     await store.save(tested);

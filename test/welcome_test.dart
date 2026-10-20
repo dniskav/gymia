@@ -40,6 +40,35 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  testWidgets('swiping changes slides and updates the page indicators', (
+    tester,
+  ) async {
+    final store = memoryStore();
+    await store.settings.load();
+    await launch(tester, store.settings);
+
+    expect(find.byKey(const Key('welcome-dot-0')), findsOneWidget);
+    expect(find.byKey(const Key('welcome-dot-4')), findsOneWidget);
+    expect(find.text('Paso 1 de 5'), findsOneWidget);
+
+    await tester.drag(
+      find.byKey(const Key('welcome-pages')),
+      const Offset(-500, 0),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Paso 2 de 5'), findsOneWidget);
+    expect(find.text('Habla o escribe'), findsOneWidget);
+
+    await tester.drag(
+      find.byKey(const Key('welcome-pages')),
+      const Offset(500, 0),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Paso 1 de 5'), findsOneWidget);
+    expect(find.byKey(const Key('welcome-trackia-logo')), findsOneWidget);
+    expect(find.text('Bienvenido'), findsOneWidget);
+  });
+
   for (final finishAtEnd in [false, true]) {
     for (final suppress in [false, true]) {
       testWidgets(

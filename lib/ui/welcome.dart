@@ -21,7 +21,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   static const slides = <({IconData icon, String title, String body})>[
     (
       icon: Icons.auto_awesome_outlined,
-      title: 'Bienvenido a GymIA',
+      title: 'Bienvenido',
       body:
           'Conversa con tu asistente de IA para preparar una actividad, resolver dudas y revisar tu progreso. Tú decides cuándo empezar.',
     ),
@@ -109,6 +109,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           ),
           Expanded(
             child: PageView.builder(
+              key: const Key('welcome-pages'),
               controller: pages,
               itemCount: slides.length,
               onPageChanged: (next) => setState(() => index = next),
@@ -121,11 +122,23 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 24),
-                      Icon(
-                        slide.icon,
-                        size: 64,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+                      if (i == 0)
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: Image.asset(
+                            'assets/branding/trackia-logo.png',
+                            key: const Key('welcome-trackia-logo'),
+                            width: 190,
+                            height: 190,
+                            fit: BoxFit.contain,
+                          ),
+                        )
+                      else
+                        Icon(
+                          slide.icon,
+                          size: 64,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                       const SizedBox(height: 24),
                       Text(
                         slide.title,
@@ -140,6 +153,35 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   ),
                 );
               },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(slides.length, (i) {
+                final active = i == index;
+                return Semantics(
+                  label: 'Página ${i + 1} de ${slides.length}',
+                  selected: active,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: AnimatedContainer(
+                      key: Key('welcome-dot-$i'),
+                      duration: const Duration(milliseconds: 180),
+                      width: active ? 20 : 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color:
+                            active
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.outlineVariant,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ),
+                );
+              }),
             ),
           ),
           SizedBox(

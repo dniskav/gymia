@@ -16,6 +16,7 @@ import android.os.SystemClock
 object RestNotifications {
     private const val channelId = "gymia_rest"
     private const val requestId = 8401
+    private const val testRequestId = 8403
     fun preferences(context: Context) = context.getSharedPreferences("gymia_rest", Context.MODE_PRIVATE)
     fun permitted(context: Context): Boolean {
         val manager = context.getSystemService(NotificationManager::class.java)
@@ -51,12 +52,33 @@ object RestNotifications {
                 enableVibration(true)
                 description = "Avisa cuando termina el descanso que configuraste."
             })
+            if (manager.getNotificationChannel(channelId)?.importance == NotificationManager.IMPORTANCE_NONE) return false
         }
         val open = PendingIntent.getActivity(context, requestId, Intent(context, MainActivity::class.java), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         val builder = if (Build.VERSION.SDK_INT >= 26) Notification.Builder(context, channelId) else Notification.Builder(context)
-        manager.notify(requestId, builder.setSmallIcon(R.drawable.ic_gymia)
+        manager.notify(requestId, builder.setSmallIcon(R.drawable.ic_trackia)
             .setContentTitle("Descanso terminado")
             .setContentText("$name · puedes comenzar cuando quieras")
+            .setContentIntent(open).setAutoCancel(true)
+            .setVisibility(Notification.VISIBILITY_PRIVATE)
+            .setDefaults(Notification.DEFAULT_ALL).build())
+        return true
+    }
+    fun notifyTest(context: Context): Boolean {
+        if (!preferences(context).getBoolean("enabled", false) || !permitted(context)) return false
+        val manager = context.getSystemService(NotificationManager::class.java)
+        if (Build.VERSION.SDK_INT >= 26) {
+            manager.createNotificationChannel(NotificationChannel(channelId, "Descanso de entrenamiento", NotificationManager.IMPORTANCE_HIGH).apply {
+                enableVibration(true)
+                description = "Avisa cuando termina el descanso que configuraste."
+            })
+            if (manager.getNotificationChannel(channelId)?.importance == NotificationManager.IMPORTANCE_NONE) return false
+        }
+        val open = PendingIntent.getActivity(context, testRequestId, Intent(context, MainActivity::class.java), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        val builder = if (Build.VERSION.SDK_INT >= 26) Notification.Builder(context, channelId) else Notification.Builder(context)
+        manager.notify(testRequestId, builder.setSmallIcon(R.drawable.ic_trackia)
+            .setContentTitle("Prueba de notificaciones")
+            .setContentText("TrackIA puede avisarte en este móvil.")
             .setContentIntent(open).setAutoCancel(true)
             .setVisibility(Notification.VISIBILITY_PRIVATE)
             .setDefaults(Notification.DEFAULT_ALL).build())

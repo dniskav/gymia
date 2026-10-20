@@ -5,9 +5,9 @@
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
     <application
-        android:label="GymIA"
+        android:label="TrackIA"
         android:name="${applicationName}"
-        android:icon="@drawable/ic_gymia" android:allowBackup="false">
+        android:icon="@mipmap/ic_launcher" android:allowBackup="false">
         <receiver android:name=".RestAlarmReceiver" android:exported="false"/>
         <activity
             android:name=".MainActivity"
@@ -30,7 +30,7 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-            <intent-filter android:label="Importar en GymIA">
+            <intent-filter android:label="Importar en TrackIA">
                 <action android:name="android.intent.action.SEND"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <data android:mimeType="text/csv"/>

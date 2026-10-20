@@ -126,6 +126,7 @@ class MainActivity : FlutterActivity() {
                             result.success(null)
                         }
                         "cancel" -> { RestNotifications.cancel(this); result.success(null) }
+                        "test" -> result.success(RestNotifications.notifyTest(this))
                         "exactSettings" -> {
                             if (Build.VERSION.SDK_INT >= 31) startActivity(Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:$packageName")))
                             result.success(null)

@@ -89,6 +89,8 @@ void main() {
               return {'synced': sent};
             case 'syncSnapshot':
               return snapshot();
+            case 'probeWrite':
+              return {'writable': true, 'temporaryTabRemoved': true};
             case 'createSpreadsheet':
               return {
                 'id': 'new-file',
@@ -154,6 +156,48 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  testWidgets(
+    'read and write diagnostics work with AI without a finished activity',
+    (tester) async {
+      controller.workouts = [];
+      controller.activities = [];
+      await const AiSettingsStore().save(
+        const AiConfig(
+          service: AiService.custom,
+          protocol: AiProtocol.chatCompletions,
+          baseUrl: 'https://example.test/v1',
+          model: 'qa',
+          apiKey: 'fake',
+        ),
+      );
+      var modelCalls = 0;
+      final client = AiClient(
+        transport: (_, __, body) async {
+          modelCalls++;
+          return {
+            'choices': [
+              {
+                'message': {
+                  'content':
+                      modelCalls == 1
+                          ? 'La fila muestra una actividad.'
+                          : 'modelo',
+                },
+              },
+            ],
+          };
+        },
+      );
+      await mount(tester, client: client);
+      await tap(tester, 'sync-connect');
+      await tap(tester, 'sync-test-read');
+      expect(find.textContaining('Lectura confirmada'), findsOneWidget);
+      await tap(tester, 'sync-test-write');
+      expect(calls.where((c) => c.method == 'probeWrite'), hasLength(1));
+      expect(modelCalls, 2);
+      expect(calls.any((c) => c.method == 'writeWorkout'), isFalse);
+    },
+  );
   testWidgets(
     'review does not send, confirmation sends original results once and keeps SQLite',
     (tester) async {

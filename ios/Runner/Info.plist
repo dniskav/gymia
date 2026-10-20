@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Haz una foto para adjuntarla a tu conversación en GymIA.</string>
+	<string>Haz una foto para adjuntarla a tu conversación en TrackIA.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Elige una foto para adjuntarla a tu conversación en GymIA.</string>
+	<string>Elige una foto para adjuntarla a tu conversación en TrackIA.</string>
     <key>NSSpeechRecognitionUsageDescription</key>
     <string>Dictar mensajes a tu asistente de entrenamiento.</string>
     <key>NSMicrophoneUsageDescription</key>
-    <string>Hablar con el asistente de GymIA.</string>
+    <string>Hablar con el asistente de TrackIA.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>GymIA</string>
+	<string>TrackIA</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>

@@ -109,3 +109,29 @@ no prueba todavía las demás historias del SDD, consentimiento real de proveedo
   paquete `com.gymia.app`, versionName 0.3.25 y versionCode 28. El certificado
   coincide con el de 0.3.24. En el emulador se instaló 0.3.24 y luego
   0.3.25 mediante `adb install -r`; la versión nueva abrió correctamente.
+
+## 0.3.26+29 · marca TrackIA y diagnósticos
+
+- Nombre visible TrackIA en Android, iOS y chat. Icono y logo derivados de la
+  referencia elegida por el usuario: reloj turquesa, flecha naranja y nombre
+  debajo del símbolo en la bienvenida. Tema claro y oscuro armonizados con
+  turquesa/naranja. El identificador `com.gymia.app`, claves locales y nombres
+  de los bloques del protocolo se conservan para actualizar sin perder datos.
+- La bienvenida permite deslizar entre sus cinco páginas y muestra cinco
+  indicadores con la posición actual. Una prueba de widget verifica ida y
+  vuelta con el gesto; en el emulador se observó el paso 1→2 y el cambio de
+  indicador.
+- Google Sheets: botones para probar lectura actual con resumen del modelo y
+  escritura con un marcador propuesto por la IA, sin sesión finalizada. La
+  escritura crea una pestaña oculta temporal, escribe una celda y la elimina
+  mediante una solicitud por lotes. Pruebas de interfaz con transporte simulado
+  y prueba Kotlin del lote y su validación aprobadas. La cuenta de Google real
+  debe comprobarse en el teléfono conectado; el emulador no prueba su OAuth.
+- Notificaciones: botón de aviso inmediato sin actividad. Las dos pruebas de
+  integración Android (aviso inmediato y alarma de descanso) pasaron en API 35
+  con los permisos concedidos.
+- Suite Flutter: 182 pruebas aprobadas; `analyze` sin incidencias. APK firmada
+  `releases/trackia-0.3.26.apk`, SHA-256
+  `011b35534549514958b81932146475e57f9f86b6e4dd8ff9fe5731041809b96a`,
+  paquete `com.gymia.app`, versionCode 29. `apksigner` confirma la misma firma
+  que 0.3.25. Instalada con `adb install -r` encima de 0.3.25 y abierta.

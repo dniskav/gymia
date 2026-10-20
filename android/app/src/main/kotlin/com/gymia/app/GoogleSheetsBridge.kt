@@ -145,7 +145,7 @@ class GoogleSheetsBridge(private val activity: Activity) {
                     (0 until row.length()).map { j -> row.optString(j, "") }
                 }
             }
-            "syncSnapshot", "syncStatus", "writeWorkout", "createSpreadsheet" -> execute(call, result) { token ->
+            "syncSnapshot", "syncStatus", "writeWorkout", "createSpreadsheet", "probeWrite" -> execute(call, result) { token ->
                 if (!writeAuthorized) throw GoogleFailure("GOOGLE_WRITE_REQUIRED", "Autoriza la escritura en Google antes de enviar el progreso.")
                 val writer = SheetsWriter { endpoint, params, body -> request(token, endpoint, params, body) }
                 writer.handle(call.method, JSONObject(call.arguments as Map<*, *>))

@@ -183,7 +183,7 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
     final box = context.findRenderObject() as RenderBox?;
     await Share.shareXFiles(
       [XFile(file.path, mimeType: 'application/json')],
-      subject: 'Copia de seguridad GymIA',
+      subject: 'Copia de seguridad TrackIA',
       text: 'Guarda este archivo en Drive o en un lugar seguro.',
       sharePositionOrigin:
           box == null ? null : box.localToGlobal(Offset.zero) & box.size,
@@ -252,7 +252,7 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
     }
     if (file.bytes == null && file.path == null) {
       throw const ValidationException(
-        'No se pudo leer esa hoja. En Google Sheets usa «Enviar una copia» como Excel o CSV y elige GymIA.',
+        'No se pudo leer esa hoja. En Google Sheets usa «Enviar una copia» como Excel o CSV y elige TrackIA.',
       );
     }
     final bytes = file.bytes ?? await File(file.path!).readAsBytes();

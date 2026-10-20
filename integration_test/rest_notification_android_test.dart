@@ -6,6 +6,22 @@ import 'package:integration_test/integration_test.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   const channel = MethodChannel('com.gymia.app/rest-notifications');
+  testWidgets('immediate notification test works without an activity', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(home: Scaffold(body: Text('Sin actividad'))),
+    );
+    await tester.runAsync(() async {
+      final status = await channel.invokeMapMethod<String, dynamic>('status');
+      expect(status?['granted'], isTrue);
+      expect(
+        await channel.invokeMethod<bool>('enable', {'enabled': true}),
+        isTrue,
+      );
+      expect(await channel.invokeMethod<bool>('test'), isTrue);
+    });
+  });
   testWidgets(
     'native Android rest alarm survives sending the activity to background',
     (tester) async {

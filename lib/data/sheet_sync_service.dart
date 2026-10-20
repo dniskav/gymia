@@ -243,6 +243,21 @@ class SheetSyncService {
     return result;
   }
 
+  /// Exercises the same authorized Sheets write endpoint without changing the
+  /// user's tabs or training cells after the atomic batch completes.
+  Future<void> probeWrite(SheetContext sheet, String marker) async {
+    final result = await call('probeWrite', {
+      'id': sheet.id,
+      'title': sheet.title,
+      'marker': marker,
+    });
+    if (result['writable'] != true || result['temporaryTabRemoved'] != true) {
+      throw const ValidationException(
+        'Google no confirmó la prueba de escritura y limpieza.',
+      );
+    }
+  }
+
   String sourceKey(String workoutId) => '$profileId:$workoutId';
   Future<bool> isSynced(
     SheetContext sheet,

@@ -23,7 +23,7 @@ class GymApp extends StatelessWidget {
     listenable: ThemeSettings.instance,
     builder:
         (context, _) => MaterialApp(
-          title: 'GymIA',
+          title: 'TrackIA',
           debugShowCheckedModeBanner: false,
           theme: gymLightTheme,
           darkTheme: gymTheme,
@@ -315,7 +315,7 @@ class _GymHomeState extends State<GymHome> {
             ),
             actions: [
               IconButton(
-                tooltip: 'Asistente GymIA',
+                tooltip: 'Asistente TrackIA',
                 onPressed:
                     widget.onAssistant ??
                     () => Navigator.of(context).push(
