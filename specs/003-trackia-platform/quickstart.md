@@ -1,6 +1,7 @@
 # Recorrido de revisión y aceptación
 
-Este SDD no cambia el APK 0.3.22 ni declara sus funciones futuras implementadas.
+El checkout ya incluye la bienvenida US9; [evidencia de QA](../../docs/TRACKIA-QA.md).
+La evolución general de TrackIA sigue pendiente y aún no hay APK público de esta etapa.
 
 ## Revisar los documentos
 
@@ -19,8 +20,8 @@ la revisión semántica comprueba coherencia, no ejecuta la app futura.
 
 ## Implementación posterior
 
-Elegir un incremento de [tasks.md](tasks.md) y sus dependencias. Todas las tareas de app
-empiezan pendientes. No confundir una lista de aceptación con resultados medidos.
+Elegir un incremento de [tasks.md](tasks.md) y sus dependencias. Las tareas completadas se marcan en el checklist; las demás siguen pendientes.
+No confundir un recorrido de aceptación con un resultado medido.
 Comprobaciones cuando existan cambios de runtime:
 
 ```sh
@@ -38,7 +39,7 @@ No reutilizar credenciales privadas o datos personales en fixtures.
 
 | Historia | Recorrido independiente | Evidencia requerida |
 |---|---|---|
-| US1 | Crear desde cero colección sin tiempo, completar pasos y guardar nota sin IA/hoja. Propuesta inline no inicia. | Widget + Android local; no gate del proveedor para controles locales. |
+| US1 | Pedir a la IA una colección sin tiempo, aceptar plan, completar pasos y guardar nota. Propuesta inline no inicia; ante caída de IA, nota y consulta locales continúan. | Widget + Android local; no gate del proveedor para controles locales. |
 | US2 | Dos espacios/personas, luego otro perfil, 20 cambios. Incluir chats, borradores, archivos, memoria y destino. | Cero filtraciones; consulta compartida solo con alcance explícito y origen. |
 | US3 | Una continua, una con ciclos, otra con pasos/cantidad; descanso opcional, pausa distinta de rest, etiquetas distintas. | SC-001 cuatro arquetipos contando US1; transición única y acciones estables. |
 | US4 | Número con unidad, lista, texto, adjunto y observación sin ejecución; editar interpretación y reabrir. | Originales, IDs y ausencia/ceros intactos. |
@@ -65,5 +66,5 @@ No reutilizar credenciales privadas o datos personales en fixtures.
 ## Criterio de cierre de entrega
 
 Solo marcar una tarea al existir implementación y evidencia correspondiente. Actualizar
-README/notas con capacidades realmente presentes. No generar APK ni migrar históricos
-como parte de este trabajo documental.
+README/notas con capacidades realmente presentes. La compilación de QA de la bienvenida no migra históricos ni cambia el nombre visible.
+Una publicación de APK requiere su propia versión, verificación y entrega.

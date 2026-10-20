@@ -33,8 +33,8 @@ stories = re.findall(r'^### User Story (\d+) .+\(Priority: (P\d)\)', spec, re.M)
 check([int(s) for s, _ in stories] == list(range(1, 10)), 'Expected stories US1..US9')
 check(dict(stories) == {str(n): ('P2' if n == 5 else 'P3' if n == 8 else 'P1')
                          for n in range(1, 10)}, 'Unexpected story priorities')
-lines = [line for line in tasks.splitlines() if line.startswith('- [')]
-pattern = re.compile(r'^- \[ \] (T\d{3})(?: \[P\])?(?: \[US([1-9])\])? .+`[^`]+\.[^`]+`.+\((?:FR|SC)-\d{3}')
+lines = [line for line in tasks.splitlines() if re.match(r'^- \[([ xX])\] T', line)]
+pattern = re.compile(r'^- \[[ xX]\] (T\d{3})(?: \[P\])?(?: \[US([1-9])\])? .+`[^`]+\.[^`]+`.+\((?:FR|SC)-\d{3}')
 ids = []
 for line in lines:
     match = pattern.match(line)
@@ -43,7 +43,8 @@ for line in lines:
         ids.append(match[1])
         check(match[2] is None or match[2] in dict(stories), f'Unknown story: {line[:25]}')
 check(ids == [f'T{n:03}' for n in range(1, len(ids)+1)], 'Task IDs not sequential/unique')
-check(len(ids) == 63, 'Expected 63 future implementation tasks')
+check(len(ids) == 63, 'Expected 63 implementation tasks')
+check(sum(line.startswith('- [x]') for line in lines) == 5, 'Expected five completed welcome tasks')
 for req in expected:
     row = re.search(r'^\| '+req+r' \|.*$', trace, re.M)
     check(bool(row), f'No traceability row: {req}')
@@ -51,7 +52,7 @@ for req in expected:
         mapped = re.findall(r'T\d{3}', row[0])
         check(bool(mapped) and all(t in ids for t in mapped), f'Invalid mapped tasks: {req}')
         for task_id in mapped:
-            task = next((line for line in lines if line.startswith('- [ ] '+task_id+' ')), '')
+            task = next((line for line in lines if re.match(r'^- \[[ xX]\] '+task_id+r' ', line)), '')
             check(req in task, f'{req} not referenced by mapped {task_id}')
 for cid, sentence in re.findall(r'\| (C\d+) \| (.+?) \|', (FEATURE / 'data-model.md').read_text()):
     check(sentence in tasks, f'Constraint {cid} not quoted verbatim in tasks')
@@ -78,5 +79,5 @@ check(not (ROOT / '.specify/extensions.yml').exists(),
 if errors:
     print('\n'.join(errors), file=sys.stderr)
     sys.exit(1)
-print('PASS: 9 stories, 43 FR + 9 SC with task coverage, 63 pending tasks, '
-      '14 quoted constraints, authored links/placeholders checked. Runtime not tested.')
+print('PASS: 9 stories, 43 FR + 9 SC with task coverage, 63 tasks (5 done), '
+      '14 quoted constraints, authored links/placeholders checked. See docs/TRACKIA-QA.md for US9 runtime evidence.')

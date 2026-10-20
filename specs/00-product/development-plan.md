@@ -5,7 +5,8 @@ Fecha: 2026-10-20. Estado: diseño. Base entregada: GymIA 0.3.22+25.
 [criterios](../003-trackia-platform/quickstart.md) y [plan anterior](history/development-plan.md).
 
 1. Fijar compatibilidad y ámbitos, respaldos/migración, capacidades y persistencia local.
-2. Permitir actividad propia sin categoría, IA ni hoja obligatorias: primer incremento útil.
+2. Permitir que la IA proponga actividades propias sin categoría obligatoria; conservar
+   consulta y registro local básico cuando se interrumpa la conexión.
 3. Añadir espacios y personalidades, con contextos separados y compartición explícita.
 4. Incorporar motor lineal de tiempos, etapas, descanso/ciclos opcionales y registros flexibles.
 5. Probar recuperación, respuestas tardías, avisos y una ejecución activa por perfil.

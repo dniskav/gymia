@@ -1,4 +1,5 @@
 import 'appearance.dart';
+import 'welcome.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
@@ -1747,6 +1748,18 @@ ${jsonEncode({
                               Navigator.of(context).push(
                                 MaterialPageRoute<void>(
                                   builder: (_) => const AppearanceScreen(),
+                                ),
+                              );
+                            },
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.help_outline_rounded),
+                            title: const Text('Ayuda y bienvenida'),
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.of(context).push(
+                                MaterialPageRoute<void>(
+                                  builder: (_) => const WelcomeHelpScreen(),
                                 ),
                               );
                             },

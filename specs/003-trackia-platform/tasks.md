@@ -6,11 +6,13 @@
 
 **Tests**: incluidos para verificar los criterios de aceptación, datos y efectos exigidos por la especificación. Escribir primero las pruebas relevantes y comprobar el fallo significativo antes de implementar.
 
-**Organization**: una fase por historia, todas las P1 antes de P2/P3; base compartida primero.
+**Organization**: una fase por historia, todas las P1 antes de P2/P3; base compartida primero. La bienvenida US9 se adelantó
+como incremento independiente de la base de actividades y usa solo capacidades existentes.
 
 ## Format: `[ID] [P?] [Story] Description`
 
-[P] indica archivos independientes dentro de la misma fase, después de sus prerequisitos; no autoriza delegación automática. [USn] corresponde a spec.md. Cada casilla pendiente describe trabajo futuro.
+[P] indica archivos independientes dentro de la misma fase, después de sus prerequisitos; no autoriza delegación automática. [USn] corresponde a spec.md. Las casillas marcadas tienen evidencia en `docs/TRACKIA-QA.md`; las pendientes
+describen trabajo futuro.
 
 ## Path Conventions
 
@@ -41,12 +43,14 @@
 
 ## Phase 3: User Story 1 — Actividad propia (P1, MVP)
 
-**Goal**: Crear/preparar/iniciar y completar manualmente una actividad sin categoría, IA o hoja.
+**Goal**: Preparar desde la conversación con IA una actividad abierta, validarla e iniciarla
+con una acción del usuario; conservar registros locales si se interrumpe la conexión.
 
-**Independent Test / Checkpoint**: Colección desde cero sin reloj, pasos y nota persistida; propuesta válida prepara sin iniciar.
+**Independent Test / Checkpoint**: El asistente propone una colección sin reloj ni campos
+forzados, la app la prepara sin iniciar; una caída de IA permite consultar y guardar notas.
 
 - [ ] T010 [P] [US1] Escribir pruebas del contrato de propuestas y capacidades en `test/activity_proposals_test.dart`. (FR-002 FR-003 FR-004 FR-005 SC-001).
-- [ ] T011 [P] [US1] Escribir recorrido local sin proveedor, pasos y nota recuperada en `test/manual_activity_test.dart`. (FR-005 SC-001).
+- [ ] T011 [P] [US1] Escribir recuperación de notas y controles locales de una actividad ya preparada ante pérdida del proveedor en `test/manual_activity_test.dart`. (FR-005 SC-001).
 - [ ] T012 [US1] Crear editor/duplicación desde cero en `lib/ui/activity_editor.dart`, usando espacio por defecto y núcleo manual de la base. (FR-002 FR-005).
 - [ ] T013 [US1] Implementar validador de sobre, revisión y propuesta inline en `lib/application/activity_proposals.dart` según `contracts/assistant-proposals.md`. (FR-003 FR-004 FR-037).
 - [ ] T014 [US1] Conectar iniciar/avanzar/finalizar manual y nota en `lib/ui/session_control.dart`; quitar gate de IA de controles locales, preservar gate del asistente. (FR-004 FR-005 FR-018).
@@ -122,11 +126,11 @@
 
 **Independent Test / Checkpoint**: Cuatro combinaciones Omitir/Empezar × casilla, tres arranques, apertura manual y entradas prioritarias.
 
-- [ ] T045 [P] [US9] Escribir pruebas de navegación, preferencia, cierre/fallo de guardado y entrada manual en `test/welcome_test.dart`. (FR-039 FR-040 FR-041 FR-042 FR-043 SC-008).
-- [ ] T046 [US9] Crear preferencia en `lib/domain/welcome_preferences.dart` y almacén `lib/data/welcome_settings_store.dart`: «autoShow es booleano con valor inicial true; seenVersion y completedAt son opcionales y no contienen identidad ni credenciales.»; confirmar solo Omitir/Empezar. (FR-041 FR-042).
-- [ ] T047 [US9] Crear cinco slides adaptadas a capacidades en `lib/ui/welcome.dart` según `contracts/welcome.md`, progreso, botones, casilla y lector/texto 200%. (FR-039 FR-040 FR-043).
-- [ ] T048 [US9] Crear coordinador en `lib/application/welcome_coordinator.dart` y entrada en `lib/main.dart`; posponer si hay ejecución/archivo sin descartar entrada, respetar supresión al actualizar. (FR-041 FR-043).
-- [ ] T049 [US9] Añadir Ver bienvenida y Mostrar bienvenida al abrir en `lib/ui/app.dart`; acceso Ayuda en máximo dos acciones y reapertura no reactiva la preferencia. (FR-042 FR-030 SC-009).
+- [x] T045 [P] [US9] Escribir pruebas de navegación, preferencia, cierre/fallo de guardado y entrada manual en `test/welcome_test.dart`. (FR-039 FR-040 FR-041 FR-042 FR-043 SC-008).
+- [x] T046 [US9] Crear preferencia y almacén en `lib/data/welcome_settings_store.dart`: «autoShow es booleano con valor inicial true; seenVersion y completedAt son opcionales y no contienen identidad ni credenciales.»; confirmar solo Omitir/Empezar. (FR-041 FR-042).
+- [x] T047 [US9] Crear cinco slides adaptadas a capacidades en `lib/ui/welcome.dart` según `contracts/welcome.md`, progreso, botones, casilla y lector/texto 200%. (FR-039 FR-040 FR-043).
+- [x] T048 [US9] Coordinar entrada en `lib/ui/app.dart` y carga de preferencia en `lib/main.dart`; posponer si hay ejecución/archivo sin descartar entrada, respetar supresión al actualizar. (FR-041 FR-043).
+- [x] T049 [US9] Añadir Ver bienvenida y Mostrar bienvenida al abrir en `lib/ui/welcome.dart` y acceso desde `lib/ui/assistant_chat.dart`; acceso Ayuda en máximo dos acciones y reapertura no reactiva la preferencia. (FR-042 FR-030 SC-009).
 - [ ] T050 [US9] Verificar tres aperturas por combinación, tema/sistema, accesibilidad, archivo entrante y ejecución activa en `integration_test/welcome_android_test.dart`. (FR-039 FR-041 FR-043 SC-008).
 
 ## Phase 10: User Story 5 — Destinos por ámbito (P2)
@@ -165,7 +169,9 @@
 
 ## Dependencies & Execution Order
 
-Todas las historias dependen de fases 1–2. Orden recomendado P1: US1 → US2 → US3 → US4 → US6 → US7 → US9. Después US5 (P2) y US8 (P3). Dependencias estrictas adicionales: US6 requiere US3; US5 requiere US2 y US4; US7 valida la base y las historias que incluya su entrega. US1 usa espacio por defecto y notas mínimas de la base, sin esperar selector US2 o campos completos US4. US2/US4 pueden probarse independientemente con fixtures de base. US9 puede adelantarse tras la base usando contenido filtrado por capacidades. US8 no requiere implementar motores avanzados: valida y especifica límites.
+Todas las historias dependen de fases 1–2. Orden recomendado P1: US1 → US2 → US3 → US4 → US6 → US7 → US9. Después US5 (P2) y US8 (P3). Dependencias estrictas adicionales: US6 requiere US3; US5 requiere US2 y US4; US7 valida la base y las historias que incluya su entrega. US1 usa espacio por defecto y notas mínimas de la base, sin esperar selector US2 o campos completos US4. US2/US4 pueden probarse independientemente con fixtures de base. US9 se adelantó sin cambiar el esquema de datos ni depender de la base de
+actividades, usando contenido de las capacidades ya existentes; la base sigue
+bloqueando las demás historias. US8 no requiere implementar motores avanzados: valida y especifica límites.
 
 Las tareas de pruebas [P] dentro de cada historia pueden redactarse juntas. Después modelos → repositorios → servicios → UI → integración. No ejecutar en paralelo cambios del mismo archivo aunque pertenezcan a historias distintas.
 
@@ -183,7 +189,8 @@ Las tareas de pruebas [P] dentro de cada historia pueden redactarse juntas. Desp
 
 ## Implementation Strategy
 
-MVP: base + US1, con una actividad sin tiempo, nota y ciclo de vida manual sin proveedor. Validar antes de ampliar. Después añadir espacios/personas y motor lineal, registros y recuperación. Migración/identidad se verifican antes de distribuir una actualización. La bienvenida puede entregarse como incremento independiente con contenido acorde a esa versión. Multidestino y capacidades avanzadas quedan detrás de sus pruebas y límites. Cada entrega se verifica con quickstart.md y actualiza solo las capacidades presentes.
+MVP: base + US1, con una propuesta de IA para actividad sin tiempo, aceptación humana
+y nota persistida; probar continuidad local ante pérdida del proveedor. Validar antes de ampliar. Después añadir espacios/personas y motor lineal, registros y recuperación. Migración/identidad se verifican antes de distribuir una actualización. La bienvenida puede entregarse como incremento independiente con contenido acorde a esa versión. Multidestino y capacidades avanzadas quedan detrás de sus pruebas y límites. Cada entrega se verifica con quickstart.md y actualiza solo las capacidades presentes.
 
 ## Notes
 

@@ -5,6 +5,7 @@ import 'ui/app.dart';
 import 'ui/theme.dart' show gymLightTheme;
 import 'data/profile_store.dart';
 import 'data/theme_settings.dart';
+import 'data/welcome_settings_store.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
 
@@ -44,6 +45,11 @@ class _BootstrapState extends State<Bootstrap> {
         await ThemeSettings.instance.load();
       } catch (_) {
         /* Keep dark if settings are unavailable. */
+      }
+      try {
+        await WelcomeSettings.instance.load();
+      } catch (_) {
+        /* A missing preference means the welcome remains available. */
       }
       await profiles.load();
     }

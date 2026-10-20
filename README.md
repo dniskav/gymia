@@ -21,8 +21,10 @@ ChatGPT: esa integración está implementada en Android, con validación de admi
 ## Evolución a TrackIA
 
 El [SDD de TrackIA](specs/README.md) define espacios, personalidades, actividades
-adaptables, temporizadores opcionales y bienvenida por diapositivas con «No volver a
-mostrar». Es el diseño del trabajo futuro; la versión entregada sigue siendo GymIA 0.3.22.
+adaptables y temporizadores opcionales. La bienvenida por diapositivas con «No volver a
+mostrar» ya está implementada y [probada localmente](docs/TRACKIA-QA.md) en el código
+fuente; el APK público entregado sigue siendo GymIA 0.3.22. La IA continúa siendo el
+centro de la experiencia; el guardado local permite continuidad si falla la conexión.
 
 ## Funciones
 - Tema claro, oscuro o automático desde Menú → Apariencia, con elección guardada en el dispositivo. [Detalles](docs/0.3.22-APPEARANCE.md).

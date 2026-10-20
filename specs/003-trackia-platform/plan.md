@@ -6,14 +6,15 @@
 
 ## Summary
 
-Evolucionar GymIA a TrackIA mediante espacios, personalidad configurable y actividades
-compuestas de registros, etapas, tiempo y ciclos opcionales. Mantener gimnasio como
-experiencia compatible. Extraer un motor determinista, un compositor de contexto y
-repositorios con ámbito explícito. Añadir bienvenida opcional y destinos múltiples por
-perfil sin exigir Sheets para usar registros locales.
+Evolucionar GymIA a TrackIA con una conversación de IA como centro, espacios,
+personalidad configurable y actividades compuestas de registros, etapas, tiempo y
+ciclos opcionales. Mantener gimnasio como experiencia compatible. Extraer un motor
+determinista, un compositor de contexto y repositorios con ámbito explícito. Añadir
+bienvenida opcional, continuidad local ante fallos de conexión y destinos múltiples.
 
 Spec Kit: investigación de fase 0 y diseño de fase 1 documentados; desglose de fase 2
-en [tasks.md](tasks.md). Esas fases documentales no significan implementación entregada.
+en [tasks.md](tasks.md). La bienvenida se adelantó como incremento independiente
+con contenido limitado a las capacidades presentes; el resto continúa pendiente.
 
 ## Technical Context
 
@@ -116,13 +117,14 @@ repositorios, importación y adaptadores compatibles mediante capas explícitas.
 
 ## Delivery increments
 
-Orden de referencia: base compatible → US1 → US2 → US3 → US4 → US6 → US7 → US9 → US5 → US8.
+Orden de referencia: base compatible → US1 centrada en IA → US2 → US3 → US4 → US6 → US7 → US9 → US5 → US8.
 La bienvenida puede adelantarse tras la base y mostrar solo las funciones presentes.
 Las historias P1 preceden al multidestino P2 y capacidades avanzadas P3.
 
 1. **Base y compatibilidad**: fixtures, ámbitos, migraciones reversibles, protocolo y motor
    transaccional. Preparar espacio por defecto sin reasignar datos entre perfiles.
-2. **Actividad abierta y espacios**: configuración manual sin IA, personalidad y contexto
+2. **Actividad abierta y espacios**: propuestas del asistente como recorrido principal,
+   con configuración manual y guardado local de respaldo; personalidad y contexto
    extraído del widget. Historial de gimnasio mediante adaptador, sin forzar nuevos workouts.
 3. **Ejecución y registros**: etapas lineales, métricas/observaciones, recuperación, avisos
    y protección frente a respuestas tardías; validar cuatro tipos de actividad.

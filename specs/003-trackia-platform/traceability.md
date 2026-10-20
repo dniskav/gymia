@@ -1,6 +1,8 @@
 # Trazabilidad — diseño frente a entrega
 
-La cobertura indica trabajo planificado, no código probado ni función disponible. Todas las tareas siguen pendientes. Base entregada: GymIA 0.3.22+25.
+La cobertura indica tareas de diseño y ejecución. US9 tiene código en el checkout
+y QA documentado; no se ha publicado APK de esta etapa. Las demás funciones siguen
+planificadas. Base distribuida: GymIA 0.3.22+25.
 
 | Requisito | Historia / ámbito | Tareas | Estado |
 |---|---|---|---|
@@ -42,11 +44,11 @@ La cobertura indica trabajo planificado, no código probado ni función disponib
 | FR-036 | US5 | T051, T053, T055, T056, T057 | Pendiente de implementar/verificar |
 | FR-037 | US1, US2, US5, US7 | T005, T013, T017, T020, T042, T055, T063 | Pendiente de implementar/verificar |
 | FR-038 | US8 | T058, T059, T060, T063 | Pendiente de implementar/verificar |
-| FR-039 | US9 | T045, T047, T050 | Pendiente de implementar/verificar |
-| FR-040 | US9 | T045, T047 | Pendiente de implementar/verificar |
-| FR-041 | US9 | T045, T046, T048, T050 | Pendiente de implementar/verificar |
-| FR-042 | US9 | T045, T046, T049 | Pendiente de implementar/verificar |
-| FR-043 | US9 | T045, T047, T048, T050 | Pendiente de implementar/verificar |
+| FR-039 | US9 | T045, T047, T050 | Implementado en checkout; QA de emulador manual y pruebas Flutter, integración automatizada pendiente |
+| FR-040 | US9 | T045, T047 | Implementado en checkout; QA de emulador manual y pruebas Flutter, integración automatizada pendiente |
+| FR-041 | US9 | T045, T046, T048, T050 | Implementado en checkout; QA de emulador manual y pruebas Flutter, integración automatizada pendiente |
+| FR-042 | US9 | T045, T046, T049 | Implementado en checkout; QA de emulador manual y pruebas Flutter, integración automatizada pendiente |
+| FR-043 | US9 | T045, T047, T048, T050 | Implementado en checkout; QA de emulador manual y pruebas Flutter, integración automatizada pendiente |
 | SC-001 | US1 | T010, T011, T062 | Pendiente de implementar/verificar |
 | SC-002 | US2 | T016, T062 | Pendiente de implementar/verificar |
 | SC-003 | US3, US6 | T023, T034, T038, T062 | Pendiente de implementar/verificar |
@@ -54,11 +56,11 @@ La cobertura indica trabajo planificado, no código probado ni función disponib
 | SC-005 | US5 | T051, T057, T062 | Pendiente de implementar/verificar |
 | SC-006 | Base/transversal | T061 | Pendiente de implementar/verificar |
 | SC-007 | US6 | T034, T038, T061 | Pendiente de implementar/verificar |
-| SC-008 | US9 | T045, T050, T062 | Pendiente de implementar/verificar |
+| SC-008 | US9 | T045, T050, T062 | Implementado en checkout; QA de emulador manual y pruebas Flutter, integración automatizada pendiente |
 | SC-009 | US2, US9 | T022, T049, T061 | Pendiente de implementar/verificar |
 
 ## Conteo
 
-43 requisitos funcionales + 9 criterios medibles, todos con tareas. 63 tareas futuras; distribución por historia: US1: 6, US2: 7, US3: 7, US4: 4, US5: 7, US6: 5, US7: 6, US8: 3, US9: 6. Base/transversales: 12.
+43 requisitos funcionales + 9 criterios medibles, todos con tareas. 63 tareas, 5 completadas y 58 pendientes; distribución por historia: US1: 6, US2: 7, US3: 7, US4: 4, US5: 7, US6: 5, US7: 6, US8: 3, US9: 6. Base/transversales: 12.
 
 Correspondencia con principios: I→US1/US8; II→US1/US3/US6; III→US2/US5; IV→US4/US7; V→US2/contrato del asistente; VI→US5; VII→US3/US9 y validación transversal; VIII→quickstart y evidencia por entrega.

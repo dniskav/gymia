@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-20
 
-**Status**: SDD propuesto, analizado; implementación pendiente
+**Status**: implementación por incrementos; bienvenida US9 implementada en el checkout y verificada en emulador; las demás historias siguen pendientes
 
 **Input**: Evolucionar GymIA a TrackIA para usos personales diversos; configurar espacios,
 personalidades sugeridas o propias, destinos de datos independientes, controles con
@@ -15,21 +15,24 @@ combinables. Añadir bienvenida por diapositivas, con «No volver a mostrar».
 
 ### User Story 1 - Explicar mi intención y preparar una actividad propia (Priority: P1)
 
-Quiero describir lo que voy a hacer o configurarlo manualmente sin elegir una categoría
-obligatoria. Puedo partir de una sugerencia y modificarla o crear una actividad vacía.
+Quiero explicar al asistente lo que voy a hacer para que proponga una actividad útil sin
+elegir una categoría obligatoria. También puedo editarla o configurarla manualmente
+como apoyo, y conservar registros locales si se interrumpe la conexión.
 
 **Why this priority**: la generalización debe aportar una actividad útil sin depender de
 que el equipo haya creado una plantilla específica para mi caso.
 
-**Independent Test**: preparar una actividad personalizada, iniciarla y guardar una nota
-sin plantilla de deporte, sin hoja externa y, por la vía manual, sin conexión con IA.
+**Independent Test**: el asistente propone una actividad fuera del gimnasio, la app
+valida su configuración y el usuario la inicia y guarda una nota; ante una caída de
+conexión, puede consultar lo guardado y continuar registros locales básicos.
 
 **Acceptance Scenarios**:
 
-1. **Given** una instalación utilizable localmente, **When** creo «Revisar mi colección»
-   sin temporizador ni métricas numéricas, **Then** puedo completar pasos y guardar notas.
-2. **Given** una intención clara comunicada al asistente, **When** propone una actividad,
-   **Then** veo su configuración antes de ejecutarla; prepararla no inicia ningún reloj.
+1. **Given** una intención clara comunicada al asistente, **When** propone «Revisar mi
+   colección», **Then** veo una configuración sin temporizador ni métricas forzadas;
+   prepararla no inicia ningún reloj.
+2. **Given** una propuesta validada, **When** la inicio y se corta la conexión con IA,
+   **Then** puedo consultar lo guardado y completar notas locales sin perder la actividad.
 3. **Given** una propuesta con una capacidad ausente, **When** intento utilizarla,
    **Then** se explica el límite y puedo adaptar la propuesta sin perder lo escrito.
 
@@ -239,8 +242,9 @@ obligue a configurar una cuenta, una personalidad o una hoja antes de conocerlo.
   planes cuyo comportamiento la app no pueda realizar.
 - **FR-004**: La preparación asistida DEBE mostrar el plan sin iniciar relojes; no se exige
   un botón adicional de Preparar para repetir una intención inequívoca ya autorizada.
-- **FR-005**: Crear y ejecutar configuraciones locales ya soportadas NO DEBE exigir IA,
-  cuenta externa ni una hoja; el asistente puede requerir su proveedor autorizado.
+- **FR-005**: La conversación con IA DEBE ser el recorrido principal cuando su proveedor
+  esté disponible. Si falla la conexión, consultar lo guardado y registrar datos básicos
+  localmente NO DEBE exigir IA, cuenta externa ni una hoja.
 
 **Espacios, personalidad y contexto**
 
@@ -369,6 +373,9 @@ obligue a configurar una cuenta, una personalidad o una hoja antes de conocerlo.
 
 ## Assumptions
 
+- La IA es el centro de la experiencia. El modo local mantiene continuidad y datos si
+  se pierde la conexión; no se presenta como sustituto del asistente. El uso de IA depende
+  de conexión, proveedor configurado y sus autorizaciones reales.
 - Requisitos de producto acordados en esta conversación; el orden y arquitectura del plan
   son propuestas revisables. Ninguna función nueva se declara entregada por este SDD.
 - Primera entrega general: planes lineales, una ejecución activa por perfil, varios espacios.

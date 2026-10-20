@@ -30,6 +30,7 @@
 
 ## Notes
 
-Estas marcas evalúan documentos, no disponibilidad de la app. Las 63 tareas de
-implementación siguen pendientes. La revisión final Spec Kit es de solo lectura;
+Estas marcas evalúan documentos. De las 63 tareas de implementación, cinco de la
+bienvenida están verificadas y 58 siguen pendientes; QA Android manual en
+[TRACKIA-QA](../../../docs/TRACKIA-QA.md). La revisión final Spec Kit es de solo lectura;
 la validación estructural se repite con `python3 scripts/validate-sdd.py` desde la raíz.

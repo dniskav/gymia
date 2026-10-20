@@ -11,6 +11,7 @@ adaptador o motor implementado y validado; una descripción del modelo no la cre
 
 ### II. Conversación y ejecución determinista
 
+La conversación con IA es el centro de la experiencia cuando el proveedor está disponible.
 El asistente propone, interpreta y acompaña. La app DEBE validar y ejecutar los
 relojes, transiciones, cálculos, registros y operaciones externas. El progreso de
 un temporizador NO DEBE depender de una respuesta del modelo. Los registros y
@@ -99,4 +100,4 @@ incompatible aumenta versión mayor; una ampliación, menor; una aclaración, pa
 Revisar efectos en especificación, plan, contratos y tareas, sin reescribir los
 originales históricos como si hubieran descrito TrackIA desde el principio.
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-20 | **Last Amended**: 2026-10-20
+**Version**: 1.1.0 | **Ratified**: 2026-10-20 | **Last Amended**: 2026-10-20

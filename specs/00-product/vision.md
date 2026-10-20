@@ -5,8 +5,9 @@ Revisión: 2026-10-20. [SDD vigente](../003-trackia-platform/spec.md).
 
 TrackIA acompaña lo que cada persona quiere hacer, practicar, organizar o registrar.
 No exige que una actividad sea un entrenamiento ni que el equipo haya previsto su categoría.
-La conversación sigue siendo la entrada principal; configuración y controles locales
-permiten usar funciones soportadas sin depender de IA, cuenta externa o hoja.
+La conversación con IA es el centro de la experiencia. Configuración y controles
+locales mantienen lo ya preparado y registrado si se interrumpe la conexión; no
+sustituyen al asistente.
 
 Cada perfil puede tener espacios con conversación, recuerdos, personalidad y destinos
 propios. Una personalidad sugerida o creada por el usuario cambia el tono y la forma de
@@ -32,7 +33,8 @@ Omitir, Empezar y «No volver a mostrar». La elección se conserva en el dispos
 revisarse desde ajustes sin reactivarla. No interrumpe actividad o archivo entrante.
 
 La base actual sigue siendo **GymIA 0.3.22+25**. Este SDD propone la evolución; espacios,
-personalidades, motor general y bienvenida todavía requieren implementación. El cambio
+personalidades y motor general todavía requieren implementación. La bienvenida ya
+tiene código y QA local, pendiente de publicación en una versión nueva. El cambio
 visible a TrackIA conservará paquete, firma, cuentas e históricos. Gimnasio continúa como
 experiencia compatible. Audio guiado real, ramas, simultaneidad, sensores y reloj requieren
 capacidades y validación propias; un prompt o texto de meditación no las implementa.

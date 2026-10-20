@@ -6,6 +6,8 @@ import '../application/workout_controller.dart';
 import '../domain/workout.dart';
 import 'theme.dart';
 import '../data/theme_settings.dart';
+import '../data/welcome_settings_store.dart';
+import 'welcome.dart';
 import 'routines.dart';
 import 'rest_timer_panel.dart';
 import 'data_transfer.dart';
@@ -44,14 +46,40 @@ class GymRoot extends StatefulWidget {
 class _GymRootState extends State<GymRoot> {
   static const _importChannel = MethodChannel('com.gymia.app/import');
   bool takingImport = false;
+  bool showingWelcome = false;
 
   @override
   void initState() {
     super.initState();
+    widget.controller.addListener(_maybeWelcome);
     _importChannel.setMethodCallHandler((call) async {
       if (call.method == 'importReady') await _takeIncomingImport();
     });
-    WidgetsBinding.instance.addPostFrameCallback((_) => _takeIncomingImport());
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _takeIncomingImport();
+      _maybeWelcome();
+    });
+  }
+
+  void _maybeWelcome() {
+    if (!mounted ||
+        showingWelcome ||
+        takingImport ||
+        !WelcomeSettings.instance.loaded ||
+        widget.controller.focus != null ||
+        !WelcomeSettings.instance.autoShow ||
+        WelcomeSettings.instance.offeredThisLaunch) {
+      return;
+    }
+    WelcomeSettings.instance.offeredThisLaunch = true;
+    showingWelcome = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      await Navigator.of(
+        context,
+      ).push(MaterialPageRoute<void>(builder: (_) => const WelcomeScreen()));
+      showingWelcome = false;
+    });
   }
 
   Future<void> _takeIncomingImport() async {
@@ -95,11 +123,13 @@ class _GymRootState extends State<GymRoot> {
       }
     } finally {
       takingImport = false;
+      _maybeWelcome();
     }
   }
 
   @override
   void dispose() {
+    widget.controller.removeListener(_maybeWelcome);
     _importChannel.setMethodCallHandler(null);
     super.dispose();
   }
