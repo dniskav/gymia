@@ -1,3 +1,5 @@
+> Antecedente de GymIA: conserva el alcance y estado de su versión. La evolución futura se rige por el [SDD de TrackIA](../003-trackia-platform/spec.md); este documento no acredita funciones nuevas.
+
 # Agente de Sheets · skill por usuario y hoja
 
 Estado: requisito confirmado el 08/10/2026; contrato de implementación. La APK 0.3.8 lee hojas y permite consultarlas en el chat. Todavía no genera skills persistentes, importa estructuras arbitrarias ni escribe en Google Sheets.

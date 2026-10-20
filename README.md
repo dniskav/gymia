@@ -18,6 +18,12 @@ incluye claves, firma privada, conversaciones ni bases de datos de usuarios.
 La publicación del código no habilita por sí misma OAuth ni el uso de un plan
 ChatGPT: esa integración está implementada en Android, con validación de admisión real pendiente, descrita en [viabilidad](specs/02-chatgpt-sign-in/feasibility.md).
 
+## Evolución a TrackIA
+
+El [SDD de TrackIA](specs/README.md) define espacios, personalidades, actividades
+adaptables, temporizadores opcionales y bienvenida por diapositivas con «No volver a
+mostrar». Es el diseño del trabajo futuro; la versión entregada sigue siendo GymIA 0.3.22.
+
 ## Funciones
 - Tema claro, oscuro o automático desde Menú → Apariencia, con elección guardada en el dispositivo. [Detalles](docs/0.3.22-APPEARANCE.md).
 - Continuar con ChatGPT en Android: identidad y permiso de uso del plan por separado, modelos de la cuenta, renovación y desconexión. Solo para cuentas elegibles; otros proveedores se conservan. [Implementación y límites](docs/0.3.21-CHATGPT.md).

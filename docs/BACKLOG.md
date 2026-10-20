@@ -1,3 +1,5 @@
+> Prioridades futuras: [SDD y tareas de TrackIA](../specs/README.md). El backlog que sigue es antecedente de GymIA; no significa que las funciones nuevas estén entregadas.
+
 # Backlog de producto
 
 Plan actualizado: [desarrollo del asistente](../specs/00-product/development-plan.md). Cada entrega debe producir un flujo usable y comprobarse en el teléfono.

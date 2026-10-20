@@ -1,3 +1,5 @@
+> Antecedente de GymIA: conserva el alcance y estado de su versión. La evolución futura se rige por el [SDD de TrackIA](../003-trackia-platform/spec.md); este documento no acredita funciones nuevas.
+
 # Inicio, cierre y sesiones múltiples
 
 Fecha: 08/10/2026. Requisito del usuario: botón en la pantalla principal para iniciar entreno que pase a finalizar cuando hay sesión activa. Aclaración posterior: finalizar un entreno no equivale a cerrar el día; Cerrar el día sirve para guardar el progreso en Sheets y permite volver a entrenar ese mismo día. [Flujo de entrenamiento mínimo y decisiones pendientes](training-focus.md).

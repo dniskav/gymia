@@ -1,3 +1,5 @@
+> Antecedente de GymIA: conserva el alcance y estado de su versión. La evolución futura se rige por el [SDD de TrackIA](../003-trackia-platform/spec.md); este documento no acredita funciones nuevas.
+
 # GymIA en el reloj · app compañera
 
 Fecha: 08/10/2026. Añadido a la hoja de ruta por petición del usuario. Estado: fase posterior, propuesta especificada y sin implementación. Dispositivo informado y confirmado por el usuario: Xiaomi Watch 2, modelo M2320W1, Wear OS 5. Falta validar GymIA en ese hardware; recibir llamadas o controlar alarmas no constituye una prueba de funcionamiento de la app. El usuario confirma expresamente que este trabajo queda para otra fase: contemplar sus contratos ahora, sin iniciar el módulo ni desplazar el núcleo IA/datos/Sheets.

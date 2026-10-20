@@ -1,3 +1,5 @@
+> Antecedente de GymIA: conserva el alcance y estado de su versión. La evolución futura se rige por el [SDD de TrackIA](../003-trackia-platform/spec.md); este documento no acredita funciones nuevas.
+
 # Entrenamiento con controles mínimos
 
 Requisitos del usuario del 08/10/2026. Los ejemplos de fuerza, cinta, fútbol y yoga son abiertos: no definen una lista cerrada de deportes ni campos universales.

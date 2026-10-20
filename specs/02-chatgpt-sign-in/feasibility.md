@@ -1,3 +1,5 @@
+> Antecedente de GymIA: conserva el alcance y estado de su versión. La evolución futura se rige por el [SDD de TrackIA](../003-trackia-platform/spec.md); este documento no acredita funciones nuevas.
+
 # Continuar con ChatGPT en GymIA · viabilidad y propuesta
 
 Revisión: 20/10/2026, código 0.3.20+23 y documentación oficial OpenAI consultada ese día. Incluye los diez requisitos de ChatGPT recibidos junto con la petición multiusuario de Sheets. Revisión previa a implementar: no modifica APK, credenciales, históricos ni interfaz de entrenamiento.

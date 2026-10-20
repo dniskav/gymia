@@ -1,3 +1,5 @@
+> Antecedente de GymIA: conserva el alcance y estado de su versión. La evolución futura se rige por el [SDD de TrackIA](../003-trackia-platform/spec.md); este documento no acredita funciones nuevas.
+
 # Modelo de actividad adaptable · IA como núcleo
 
 Fecha: 08/10/2026. Requisito confirmado: el LLM es el centro de GymIA y adapta las actividades, métricas y representación en Sheets a cada usuario. Este documento propone el contrato técnico. No implica que la migración, las herramientas adaptativas o los conectores estén implementados.
