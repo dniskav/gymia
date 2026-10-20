@@ -1,3 +1,4 @@
+import 'appearance.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
@@ -114,8 +115,27 @@ class _AssistantChatScreenState extends State<AssistantChatScreen>
       final fresh = await sheets.refresh();
       final config = await sheets.service.connection();
       final jobs = await sheets.jobs();
-      sheetConnectionForAi = config == null ? null : {'name': config['name'], 'title': config['title'], 'automatic': config['automatic'], 'layout': config['layout']};
-      pendingSheetsForAi = [for (final j in jobs) if (j['status'] != 'sent' && j['id'] == config?['id'] && j['subject'] == config?['subject'] && j['sheetId'] == config?['sheetId']) {'workoutId': j['workoutId'], 'status': j['status'], 'questionOrError': j['lastError']}];
+      sheetConnectionForAi =
+          config == null
+              ? null
+              : {
+                'name': config['name'],
+                'title': config['title'],
+                'automatic': config['automatic'],
+                'layout': config['layout'],
+              };
+      pendingSheetsForAi = [
+        for (final j in jobs)
+          if (j['status'] != 'sent' &&
+              j['id'] == config?['id'] &&
+              j['subject'] == config?['subject'] &&
+              j['sheetId'] == config?['sheetId'])
+            {
+              'workoutId': j['workoutId'],
+              'status': j['status'],
+              'questionOrError': j['lastError'],
+            },
+      ];
       if (mounted && fresh != null) {
         setState(() {
           sheetContext = fresh;
@@ -1719,6 +1739,18 @@ ${jsonEncode({
                       child: ListView(
                         children: [
                           const ListTile(title: Text('GymIA')),
+                          ListTile(
+                            leading: const Icon(Icons.brightness_6_outlined),
+                            title: const Text('Apariencia'),
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.of(context).push(
+                                MaterialPageRoute<void>(
+                                  builder: (_) => const AppearanceScreen(),
+                                ),
+                              );
+                            },
+                          ),
                           if (notifications.supported)
                             SwitchListTile(
                               title: const Text(

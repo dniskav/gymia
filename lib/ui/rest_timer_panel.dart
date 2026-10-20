@@ -5,7 +5,6 @@ import '../application/workout_controller.dart';
 import '../domain/rest_timer.dart';
 import '../domain/routine.dart';
 import '../domain/workout.dart';
-import 'theme.dart';
 
 class RestTimerPanel extends StatefulWidget {
   const RestTimerPanel({
@@ -93,7 +92,7 @@ class _RestTimerPanelState extends State<RestTimerPanel>
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 8),
       padding: const EdgeInsets.fromLTRB(14, 8, 14, 8),
       decoration: BoxDecoration(
-        color: panel,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -101,7 +100,11 @@ class _RestTimerPanelState extends State<RestTimerPanel>
         children: [
           Row(
             children: [
-              const Icon(Icons.timer_outlined, color: lime, size: 20),
+              Icon(
+                Icons.timer_outlined,
+                color: Theme.of(context).colorScheme.primary,
+                size: 20,
+              ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
@@ -110,7 +113,10 @@ class _RestTimerPanelState extends State<RestTimerPanel>
                       : paused
                       ? 'Descanso pausado'
                       : 'Descanso',
-                  style: const TextStyle(color: muted, fontSize: 12),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontSize: 12,
+                  ),
                 ),
               ),
               Semantics(
@@ -119,10 +125,10 @@ class _RestTimerPanelState extends State<RestTimerPanel>
                 child: Text(
                   timer.displayAt(now),
                   key: const Key('rest-clock'),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w800,
-                    color: lime,
+                    color: Theme.of(context).colorScheme.primary,
                     fontFeatures: [FontFeature.tabularFigures()],
                   ),
                 ),
@@ -176,9 +182,12 @@ class _RestTimerPanelState extends State<RestTimerPanel>
               ),
             ],
           ),
-          const Text(
+          Text(
             'Aviso con esta pantalla abierta; el tiempo sigue al salir.',
-            style: TextStyle(color: muted, fontSize: 10),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              fontSize: 10,
+            ),
           ),
         ],
       ),
@@ -229,9 +238,12 @@ class _RestDurationDialogState extends State<RestDurationDialog> {
               },
             ),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               'Entre 5 y 1800 segundos. Al aplicar, el contador queda listo para empezar.',
-              style: TextStyle(color: muted, fontSize: 12),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontSize: 12,
+              ),
             ),
           ],
         ),

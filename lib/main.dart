@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'data/sqlite_workout_repository.dart';
 import 'application/workout_controller.dart';
 import 'ui/app.dart';
+import 'ui/theme.dart' show gymLightTheme;
 import 'data/profile_store.dart';
+import 'data/theme_settings.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
 
@@ -37,7 +39,14 @@ class _BootstrapState extends State<Bootstrap> {
 
   late Future<WorkoutController> future = _open();
   Future<WorkoutController> _open({bool loadRegistry = true}) async {
-    if (loadRegistry) await profiles.load();
+    if (loadRegistry) {
+      try {
+        await ThemeSettings.instance.load();
+      } catch (_) {
+        /* Keep dark if settings are unavailable. */
+      }
+      await profiles.load();
+    }
     final id = profiles.activeId;
     if (controllers.containsKey(id)) return controllers[id]!;
     final path =
@@ -83,7 +92,9 @@ class _BootstrapState extends State<Bootstrap> {
       }
       return MaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: gymTheme,
+        theme: gymLightTheme,
+        darkTheme: gymTheme,
+        themeMode: ThemeSettings.instance.mode,
         home: Scaffold(
           body: Center(
             child: Padding(

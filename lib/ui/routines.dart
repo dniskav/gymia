@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../application/workout_controller.dart';
 import '../domain/routine.dart';
 import '../domain/workout.dart';
-import 'theme.dart';
 
 class RoutineLibrary extends StatelessWidget {
   const RoutineLibrary({
@@ -34,9 +33,12 @@ class RoutineLibrary extends StatelessWidget {
         ),
       ),
       const SizedBox(height: 8),
-      const Text(
+      Text(
         'Prepara una vez. Entrena a tu ritmo.',
-        style: TextStyle(color: muted, fontSize: 16),
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+          fontSize: 16,
+        ),
       ),
       const SizedBox(height: 24),
       FilledButton.icon(
@@ -49,13 +51,17 @@ class RoutineLibrary extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: panel,
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(20),
           ),
-          child: const Column(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.view_list_rounded, color: lime, size: 32),
+              Icon(
+                Icons.view_list_rounded,
+                color: Theme.of(context).colorScheme.primary,
+                size: 32,
+              ),
               SizedBox(height: 16),
               Text(
                 'Tu próxima sesión, preparada',
@@ -64,7 +70,10 @@ class RoutineLibrary extends StatelessWidget {
               SizedBox(height: 8),
               Text(
                 'Crea, por ejemplo, «Pierna A» con tus ejercicios, series y rango de repeticiones.',
-                style: TextStyle(color: muted, height: 1.5),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  height: 1.5,
+                ),
               ),
             ],
           ),
@@ -75,7 +84,7 @@ class RoutineLibrary extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: panel,
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Column(
@@ -157,7 +166,11 @@ class RoutineLibrary extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           routine.exercises[i].description,
-                          style: const TextStyle(color: muted, fontSize: 12),
+                          style: TextStyle(
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                            fontSize: 12,
+                          ),
                         ),
                       ],
                     ),
@@ -333,9 +346,12 @@ class _RoutineEditorState extends State<RoutineEditor> {
                   },
                 ),
                 const SizedBox(height: 12),
-                const Text(
+                Text(
                   'Define tus objetivos. Las series se registrarán cuando entrenes.',
-                  style: TextStyle(color: muted, height: 1.5),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    height: 1.5,
+                  ),
                 ),
                 const SizedBox(height: 24),
                 for (var i = 0; i < exercises.length; i++)
@@ -345,7 +361,7 @@ class _RoutineEditorState extends State<RoutineEditor> {
                       key: ValueKey('routine-item-$i'),
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: panel,
+                        color: Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Column(
@@ -361,7 +377,12 @@ class _RoutineEditorState extends State<RoutineEditor> {
                           const SizedBox(height: 8),
                           Text(
                             exercises[i].description,
-                            style: const TextStyle(color: muted),
+                            style: TextStyle(
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                            ),
                           ),
                           const SizedBox(height: 8),
                           Wrap(

@@ -36,3 +36,25 @@ final gymTheme = ThemeData(
     ),
   ),
 );
+
+final gymLightTheme = ThemeData(
+  useMaterial3: true,
+  filledButtonTheme: gymTheme.filledButtonTheme,
+  outlinedButtonTheme: gymTheme.outlinedButtonTheme,
+  brightness: Brightness.light,
+  colorScheme: ColorScheme.fromSeed(
+    seedColor: const Color(0xFF426500),
+    brightness: Brightness.light,
+  ),
+  scaffoldBackgroundColor: const Color(0xFFF6F9F1),
+  appBarTheme: const AppBarTheme(
+    backgroundColor: Color(0xFFF6F9F1),
+    foregroundColor: ink,
+    surfaceTintColor: Colors.transparent,
+  ),
+  inputDecorationTheme: gymTheme.inputDecorationTheme.copyWith(
+    fillColor: const Color(0xFFEDF2E6),
+  ),
+  textTheme: ThemeData(brightness: Brightness.light).textTheme,
+  primaryTextTheme: ThemeData(brightness: Brightness.light).primaryTextTheme,
+);

@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../application/workout_controller.dart';
 import '../domain/workout.dart';
 import 'theme.dart';
+import '../data/theme_settings.dart';
 import 'routines.dart';
 import 'rest_timer_panel.dart';
 import 'data_transfer.dart';
@@ -16,14 +17,20 @@ class GymApp extends StatelessWidget {
   const GymApp({super.key, required this.controller});
   final WorkoutController controller;
   @override
-  Widget build(BuildContext context) => MaterialApp(
-    title: 'GymIA',
-    debugShowCheckedModeBanner: false,
-    theme: gymTheme,
-    locale: const Locale('es'),
-    supportedLocales: const [Locale('es')],
-    localizationsDelegates: GlobalMaterialLocalizations.delegates,
-    home: GymRoot(controller: controller),
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: ThemeSettings.instance,
+    builder:
+        (context, _) => MaterialApp(
+          title: 'GymIA',
+          debugShowCheckedModeBanner: false,
+          theme: gymLightTheme,
+          darkTheme: gymTheme,
+          themeMode: ThemeSettings.instance.mode,
+          locale: const Locale('es'),
+          supportedLocales: const [Locale('es')],
+          localizationsDelegates: GlobalMaterialLocalizations.delegates,
+          home: GymRoot(controller: controller),
+        ),
   );
 }
 
@@ -256,9 +263,9 @@ class _GymHomeState extends State<GymHome> {
             title: Row(
               children: [
                 if (selected == null) ...[
-                  const Icon(
+                  Icon(
                     Icons.fitness_center_rounded,
-                    color: lime,
+                    color: Theme.of(context).colorScheme.primary,
                     size: 23,
                   ),
                   const SizedBox(width: 10),
@@ -286,9 +293,9 @@ class _GymHomeState extends State<GymHome> {
                         builder: (_) => AssistantChatScreen(controller: c),
                       ),
                     ),
-                icon: const Icon(
+                icon: Icon(
                   Icons.chat_bubble_outline_rounded,
-                  color: lime,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
               if (selected == null)
@@ -300,7 +307,10 @@ class _GymHomeState extends State<GymHome> {
                           builder: (_) => DataTransferScreen(controller: c),
                         ),
                       ),
-                  icon: const Icon(Icons.folder_open_rounded, color: lime),
+                  icon: Icon(
+                    Icons.folder_open_rounded,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                 ),
             ],
           ),
@@ -316,7 +326,7 @@ class _GymHomeState extends State<GymHome> {
                       vertical: 8,
                     ),
                     child: Material(
-                      color: const Color(0xFF482727),
+                      color: Theme.of(context).colorScheme.errorContainer,
                       borderRadius: BorderRadius.circular(12),
                       child: Padding(
                         padding: const EdgeInsets.all(12),
@@ -423,8 +433,8 @@ class _GymHomeState extends State<GymHome> {
             "EEEE, d 'de' MMMM",
             'es',
           ).format(DateTime.now()).toUpperCase(),
-          style: const TextStyle(
-            color: muted,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             fontSize: 11,
             fontWeight: FontWeight.w700,
             letterSpacing: 1.3,
@@ -441,9 +451,13 @@ class _GymHomeState extends State<GymHome> {
           ),
         ),
         const SizedBox(height: 14),
-        const Text(
+        Text(
           'Una serie a la vez. Lleva el registro de lo que haces hoy.',
-          style: TextStyle(color: muted, fontSize: 16, height: 1.5),
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            fontSize: 16,
+            height: 1.5,
+          ),
         ),
         const SizedBox(height: 28),
         Container(
@@ -546,15 +560,22 @@ class _GymHomeState extends State<GymHome> {
         else
           _workoutTile(c.history.first),
         const SizedBox(height: 22),
-        const Row(
+        Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.check_circle_outline_rounded, size: 15, color: muted),
+            Icon(
+              Icons.check_circle_outline_rounded,
+              size: 15,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
             SizedBox(width: 8),
             Flexible(
               child: Text(
                 'Guardado en este dispositivo · Sin conexión',
-                style: TextStyle(color: muted, fontSize: 12),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontSize: 12,
+                ),
               ),
             ),
           ],
@@ -575,9 +596,12 @@ class _GymHomeState extends State<GymHome> {
         ),
       ),
       const SizedBox(height: 8),
-      const Text(
+      Text(
         'Cada sesión cuenta.',
-        style: TextStyle(color: muted, fontSize: 16),
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+          fontSize: 16,
+        ),
       ),
       const SizedBox(height: 24),
       if (c.history.isEmpty)
@@ -595,7 +619,7 @@ class _GymHomeState extends State<GymHome> {
   );
 
   Widget _workoutTile(Workout w) => Material(
-    color: panel,
+    color: Theme.of(context).colorScheme.surface,
     borderRadius: BorderRadius.circular(20),
     child: InkWell(
       borderRadius: BorderRadius.circular(20),
@@ -604,7 +628,10 @@ class _GymHomeState extends State<GymHome> {
         padding: const EdgeInsets.all(20),
         child: Row(
           children: [
-            const Icon(Icons.check_circle_outline_rounded, color: lime),
+            Icon(
+              Icons.check_circle_outline_rounded,
+              color: Theme.of(context).colorScheme.primary,
+            ),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
@@ -620,17 +647,26 @@ class _GymHomeState extends State<GymHome> {
                   const SizedBox(height: 6),
                   Text(
                     DateFormat('d MMM yyyy · HH:mm', 'es').format(w.startedAt),
-                    style: const TextStyle(color: muted, fontSize: 12),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontSize: 12,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     '${_activitiesFor(w)} actividades · ${_recordsFor(w)} registros',
-                    style: const TextStyle(color: muted, fontSize: 12),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontSize: 12,
+                    ),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right_rounded, color: muted),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ],
         ),
       ),
@@ -642,8 +678,8 @@ class _GymHomeState extends State<GymHome> {
     children: [
       Text(
         w.isActive ? 'EN CURSO' : 'COMPLETADO',
-        style: const TextStyle(
-          color: lime,
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.primary,
           fontSize: 11,
           fontWeight: FontWeight.w800,
           letterSpacing: 1.8,
@@ -662,23 +698,27 @@ class _GymHomeState extends State<GymHome> {
       const SizedBox(height: 10),
       Text(
         DateFormat("d 'de' MMMM · HH:mm", 'es').format(w.startedAt),
-        style: const TextStyle(color: muted),
+        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
       ),
       if (w.finishedAt != null) ...[
         const SizedBox(height: 8),
         Text(
           'Finalizó: ${DateFormat('d/M/yyyy HH:mm:ss').format(w.finishedAt!.toLocal())}',
-          style: const TextStyle(color: muted),
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
         if (w.finishedRecordedAt != null)
           Text(
             'Cierre registrado: ${DateFormat('d/M/yyyy HH:mm:ss').format(w.finishedRecordedAt!.toLocal())}${w.finishTimeSource == FinishTimeSource.user ? ' · hora elegida por ti' : ''}',
-            style: const TextStyle(color: muted),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
         if (w.finishTimeIssues.isNotEmpty)
-          const Text(
+          Text(
             'Horario conservado con aviso. Puedes revisarlo más adelante.',
-            style: TextStyle(color: lime),
+            style: TextStyle(color: Theme.of(context).colorScheme.primary),
           ),
       ],
       const SizedBox(height: 22),
@@ -734,14 +774,18 @@ class _GymHomeState extends State<GymHome> {
                 if (activity.finishedAt != null)
                   Text(
                     'Fin: ${DateFormat('d/M/yyyy HH:mm').format(activity.finishedAt!.toLocal())}',
-                    style: const TextStyle(color: muted),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 if (activity.finishIssues
                     .where((i) => i != 'not_started')
                     .isNotEmpty)
-                  const Text(
+                  Text(
                     'Horario conservado con aviso.',
-                    style: TextStyle(color: lime),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
                   ),
                 for (final message in activity.messages.where(
                   (m) => m.role == 'user',
@@ -778,7 +822,10 @@ class _GymHomeState extends State<GymHome> {
               ? 'Registra al menos una serie para finalizar.'
               : 'Cada serie se guarda al pulsar Guardar.',
           textAlign: TextAlign.center,
-          style: const TextStyle(color: muted, fontSize: 12),
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            fontSize: 12,
+          ),
         ),
         const SizedBox(height: 16),
         TextButton(
@@ -793,14 +840,22 @@ class _GymHomeState extends State<GymHome> {
             final ok = await c.run(() => c.repository.discard(w.id));
             if (ok && mounted) setState(() => selectedId = null);
           },
-          child: const Text('Descartar sesión', style: TextStyle(color: muted)),
+          child: Text(
+            'Descartar sesión',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
         ),
       ] else ...[
         const SizedBox(height: 8),
-        const Text(
+        Text(
           'Sesión guardada. Buen trabajo.',
           textAlign: TextAlign.center,
-          style: TextStyle(color: lime, fontWeight: FontWeight.w600),
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.primary,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         const SizedBox(height: 16),
         OutlinedButton(
@@ -821,7 +876,7 @@ class _GymHomeState extends State<GymHome> {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: panel,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
@@ -831,8 +886,8 @@ class _GymHomeState extends State<GymHome> {
             children: [
               Text(
                 number.toString().padLeft(2, '0'),
-                style: const TextStyle(
-                  color: lime,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.w800,
                 ),
               ),
@@ -849,10 +904,10 @@ class _GymHomeState extends State<GymHome> {
               if (editable)
                 IconButton(
                   tooltip: 'Eliminar ejercicio ${e.name}',
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.delete_outline_rounded,
                     size: 20,
-                    color: muted,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                   onPressed: () async {
                     if (await _confirm(
@@ -871,7 +926,10 @@ class _GymHomeState extends State<GymHome> {
               padding: const EdgeInsets.only(top: 12),
               child: Text(
                 'Objetivo: ${e.targetSets} series de ${e.repsMin}–${e.repsMax} reps · ${e.sets.length}/${e.targetSets} registradas',
-                style: const TextStyle(color: lime, fontSize: 13),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontSize: 13,
+                ),
               ),
             ),
           if (editable)
@@ -881,7 +939,7 @@ class _GymHomeState extends State<GymHome> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: ink,
+                  color: Theme.of(context).scaffoldBackgroundColor,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
@@ -891,7 +949,10 @@ class _GymHomeState extends State<GymHome> {
                       previous == null
                           ? 'Sin sesión anterior registrada'
                           : 'Última vez · ${DateFormat("d MMM", "es").format(previous.date)}',
-                      style: const TextStyle(color: muted, fontSize: 12),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontSize: 12,
+                      ),
                     ),
                     if (previous != null) ...[
                       const SizedBox(height: 6),
@@ -909,34 +970,46 @@ class _GymHomeState extends State<GymHome> {
               ),
             ),
           if (e.sets.isEmpty)
-            const Padding(
+            Padding(
               padding: EdgeInsets.symmetric(vertical: 16),
               child: Text(
                 'Todavía no has registrado series.',
-                style: TextStyle(color: muted, fontSize: 13),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontSize: 13,
+                ),
               ),
             ),
           if (e.sets.isNotEmpty) ...[
             const SizedBox(height: 16),
-            const Row(
+            Row(
               children: [
                 SizedBox(
                   width: 42,
                   child: Text(
                     'SERIE',
-                    style: TextStyle(color: muted, fontSize: 10),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontSize: 10,
+                    ),
                   ),
                 ),
                 Expanded(
                   child: Text(
                     'KG',
-                    style: TextStyle(color: muted, fontSize: 10),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontSize: 10,
+                    ),
                   ),
                 ),
                 Expanded(
                   child: Text(
                     'REPS',
-                    style: TextStyle(color: muted, fontSize: 10),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontSize: 10,
+                    ),
                   ),
                 ),
                 SizedBox(width: 48),
@@ -949,7 +1022,9 @@ class _GymHomeState extends State<GymHome> {
                     width: 42,
                     child: Text(
                       '${i + 1}',
-                      style: const TextStyle(color: muted),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ),
                   Expanded(
@@ -999,10 +1074,14 @@ class _GymHomeState extends State<GymHome> {
                           ],
                     )
                   else
-                    const SizedBox(
+                    SizedBox(
                       width: 48,
                       height: 48,
-                      child: Icon(Icons.check_rounded, color: lime, size: 18),
+                      child: Icon(
+                        Icons.check_rounded,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 18,
+                      ),
                     ),
                 ],
               ),
@@ -1038,9 +1117,9 @@ class SectionLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(
     text,
-    style: const TextStyle(
+    style: TextStyle(
       fontSize: 11,
-      color: muted,
+      color: Theme.of(context).colorScheme.onSurfaceVariant,
       letterSpacing: 1.4,
       fontWeight: FontWeight.w700,
     ),
@@ -1055,7 +1134,7 @@ class StatTile extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(18),
     decoration: BoxDecoration(
-      color: panel,
+      color: Theme.of(context).colorScheme.surface,
       borderRadius: BorderRadius.circular(18),
     ),
     child: Column(
@@ -1066,7 +1145,13 @@ class StatTile extends StatelessWidget {
           style: const TextStyle(fontSize: 29, fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 4),
-        Text(label, style: const TextStyle(color: muted, fontSize: 12)),
+        Text(
+          label,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            fontSize: 12,
+          ),
+        ),
       ],
     ),
   );
@@ -1087,13 +1172,17 @@ class EmptyPanel extends StatelessWidget {
     width: double.infinity,
     padding: const EdgeInsets.all(24),
     decoration: BoxDecoration(
-      border: Border.all(color: const Color(0xFF334039)),
+      border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       borderRadius: BorderRadius.circular(20),
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, color: muted, size: 30),
+        Icon(
+          icon,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+          size: 30,
+        ),
         const SizedBox(height: 18),
         Text(
           title,
@@ -1102,7 +1191,11 @@ class EmptyPanel extends StatelessWidget {
         const SizedBox(height: 8),
         Text(
           subtitle,
-          style: const TextStyle(color: muted, height: 1.5, fontSize: 14),
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            height: 1.5,
+            fontSize: 14,
+          ),
         ),
       ],
     ),
@@ -1282,9 +1375,12 @@ class _SetDialogState extends State<SetDialog> {
               },
             ),
             const SizedBox(height: 14),
-            const Text(
+            Text(
               'Usa 0 kg si entrenas sin carga externa.',
-              style: TextStyle(color: muted, fontSize: 12),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontSize: 12,
+              ),
             ),
           ],
         ),

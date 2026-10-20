@@ -5,7 +5,6 @@ import '../application/workout_controller.dart';
 import '../domain/activity.dart';
 import '../domain/workout.dart';
 import 'session_control.dart';
-import 'theme.dart';
 
 class ActivityFocusControls extends StatefulWidget {
   const ActivityFocusControls({
@@ -262,7 +261,12 @@ class _ActivityFocusControlsState extends State<ActivityFocusControls>
                           Icon(
                             Icons.edit_outlined,
                             size: 18,
-                            color: a == null ? muted : null,
+                            color:
+                                a == null
+                                    ? Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant
+                                    : null,
                           ),
                           const SizedBox(width: 8),
                         ],
@@ -308,7 +312,9 @@ class _ActivityFocusControlsState extends State<ActivityFocusControls>
                         : a.intervals.isEmpty
                         ? 'Listo'
                         : 'Descanso',
-                    style: const TextStyle(color: muted),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
                 if (running != null)

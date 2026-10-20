@@ -12,7 +12,6 @@ import '../application/workout_controller.dart';
 import '../domain/transfer.dart';
 import '../domain/transfer_repository.dart';
 import '../domain/workout.dart';
-import 'theme.dart';
 import 'google_sheets_import.dart';
 import '../domain/sheet_context.dart';
 import '../data/sheet_context_store.dart';
@@ -299,9 +298,11 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
           style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 10),
-        const Text(
+        Text(
           'Guarda una copia fuera de este móvil para recuperarla o pasarla a otro teléfono.',
-          style: TextStyle(color: muted),
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
         const SizedBox(height: 28),
         Card(
@@ -315,9 +316,11 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
                   style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'Incluye historial, rutinas y sesión en curso.',
-                  style: TextStyle(color: muted),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 FilledButton.icon(
@@ -351,7 +354,9 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
                   defaultTargetPlatform == TargetPlatform.android
                       ? 'Carga tu hoja y pestaña con autorización de Google, o elige una copia Excel o CSV. Se conservan las celdas originales; la IA podrá interpretar tu formato cuando esté conectada.'
                       : 'Carga una copia Excel o CSV. Se conservan las celdas originales, pendientes de interpretación por la IA.',
-                  style: const TextStyle(color: muted),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 if (defaultTargetPlatform == TargetPlatform.android) ...[
@@ -412,7 +417,10 @@ class _CsvImportScreenState extends State<CsvImportScreen> {
       ),
       trailing:
           existing.contains(importedFingerprint(workout))
-              ? const Icon(Icons.check_circle_outline_rounded, color: muted)
+              ? Icon(
+                Icons.check_circle_outline_rounded,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              )
               : null,
       children: [
         for (final exercise in workout.exercises)
@@ -600,9 +608,11 @@ class _CsvImportScreenState extends State<CsvImportScreen> {
             style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Asocia las columnas de tu hoja. Una fila representa una serie.',
-            style: TextStyle(color: muted),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
           const SizedBox(height: 24),
           selector('Fecha', mapping.date, (v) => change(date: v)),
@@ -642,7 +652,9 @@ class _CsvImportScreenState extends State<CsvImportScreen> {
             const SizedBox(height: 8),
             Text(
               '${preview!.validRows} series válidas de ${preview!.totalRows} filas.',
-              style: const TextStyle(color: muted),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
             const SizedBox(height: 16),
             for (final w in preview!.workouts.take(10)) workoutTile(w),

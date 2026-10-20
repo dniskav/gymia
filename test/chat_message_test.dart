@@ -77,47 +77,50 @@ void main() {
     expect(find.textContaining('gymia-activity'), findsNothing);
     expect(find.textContaining('Chest'), findsNothing);
   });
-  testWidgets('quotes and code have readable dark-theme contrast on a phone', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(360, 740);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-    await tester.pumpWidget(
-      MaterialApp(
-        theme: gymTheme,
-        home: const Scaffold(
-          body: SingleChildScrollView(
-            child: ChatMessageBody(
-              assistant: true,
-              text:
-                  '> Solicitud: sincronización automática a Google Sheets\n>\n> 1. Guardar permiso una vez.\n> 2. Enviar al finalizar.\n\n```text\n60 kg × 10 repeticiones\n```',
+  for (final theme in [gymTheme, gymLightTheme]) {
+    testWidgets(
+      'quotes and code have readable ${theme.brightness.name}-theme contrast on a phone',
+      (tester) async {
+        tester.view.physicalSize = const Size(360, 740);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: theme,
+            home: const Scaffold(
+              body: SingleChildScrollView(
+                child: ChatMessageBody(
+                  assistant: true,
+                  text:
+                      '> Solicitud: sincronización automática a Google Sheets\n>\n> 1. Guardar permiso una vez.\n> 2. Enviar al finalizar.\n\n```text\n60 kg × 10 repeticiones\n```',
+                ),
+              ),
             ),
           ),
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-    final style =
-        tester.widget<MarkdownBody>(find.byType(MarkdownBody)).styleSheet!;
-    double ratio(Color a, Color b) {
-      final x = a.computeLuminance(), y = b.computeLuminance();
-      return ((x > y ? x : y) + .05) / ((x > y ? y : x) + .05);
-    }
+        );
+        await tester.pumpAndSettle();
+        final style =
+            tester.widget<MarkdownBody>(find.byType(MarkdownBody)).styleSheet!;
+        double ratio(Color a, Color b) {
+          final x = a.computeLuminance(), y = b.computeLuminance();
+          return ((x > y ? x : y) + .05) / ((x > y ? y : x) + .05);
+        }
 
-    final background = (style.blockquoteDecoration as BoxDecoration).color!;
-    expect(
-      ratio(style.blockquote!.color!, background),
-      greaterThanOrEqualTo(4.5),
+        final background = (style.blockquoteDecoration as BoxDecoration).color!;
+        expect(
+          ratio(style.blockquote!.color!, background),
+          greaterThanOrEqualTo(4.5),
+        );
+        expect(
+          ratio(
+            style.code!.color!,
+            (style.codeblockDecoration as BoxDecoration).color!,
+          ),
+          greaterThanOrEqualTo(4.5),
+        );
+        expect(tester.takeException(), null);
+      },
     );
-    expect(
-      ratio(
-        style.code!.color!,
-        (style.codeblockDecoration as BoxDecoration).color!,
-      ),
-      greaterThanOrEqualTo(4.5),
-    );
-    expect(tester.takeException(), null);
-  });
+  }
 }
