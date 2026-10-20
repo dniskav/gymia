@@ -21,7 +21,7 @@ Prioridad explícita posterior del usuario: el LLM y el chat por voz/texto son e
 | 1 · Skills y escritura Sheets | Interpretación por usuario/hoja, registros con procedencia y actualización verificada respetando su formato | 0.3.8 probada en emulador: autorización real, 111 filas, persistencia y nueva lectura. 0.3.19 añade escritura revisada y creación de hojas, con pruebas controladas; quedan skills persistentes, importación estructurada y validación real del nuevo envío |
 | 2 · Acciones desde el chat | Registro determinista, contexto persistido y descanso automático; usar la skill para mantener Sheets | 0.3.10 añade foco de actividad, tramos, mensajes originales, descanso automático y propuestas/interpretaciones acotadas del LLM. Búsqueda del histórico completo, revisiones avanzadas y conexión con la skill de Sheets pendientes |
 | 3 · Voz | Misma conversación y herramientas mediante dictado y respuesta hablada | Usuario confirma dictado en el móvil; respuesta hablada pendiente |
-| 4 · Reloj compañero | Controles, registro, descanso con vibración/aviso visual y voz al mismo asistente del móvil | Fase posterior confirmada. Xiaomi Watch 2 M2320W1, Wear OS 5 informado por el usuario. Depende del motor de acciones/descanso; no implementado ni probado |
+| 4 · Reloj compañero | Controles, registro, descanso con vibración/aviso visual y voz al mismo asistente del móvil | 0.3.27 aporta Iniciar/Parar/Cerrar en notificaciones Android, probado en emulador del móvil. Réplica real al Xiaomi Watch 2 y voz desde su micrófono pendientes |
 | 5 · Contexto y progreso | Máquinas/variantes, fotos, progreso calculado y recordatorios reales | Pendiente |
 
 Las gráficas dejan de ser la siguiente entrega y el LLM deja de posponerse al antiguo Sprint 5. Las entregas anteriores conservan su aceptación y sus límites documentados.
@@ -46,7 +46,7 @@ Las gráficas dejan de ser la siguiente entrega y el LLM deja de posponerse al a
 - Probar diferentes formatos y escritura real en una hoja de prueba antes de activar mutaciones sobre el histórico personal.
 - Ofrecer creación opcional si no hay hoja; no crear otra para eludir la interpretación de la existente.
 - Proveedor confirmado: OpenCode Go con claves propias. Usuario confirma texto y voz; herramientas y visión deben comprobarse para el modelo elegido.
-- Reloj: [plan de app compañera](../specs/00-product/watch-companion.md) para otra fase, según aclaración expresa del usuario. Xiaomi Watch 2 M2320W1 con Wear OS 5 confirmado por él; prueba real pendiente. Primero controles/descanso y después voz al mismo chat. Reutilizar motor/IDs, mostrar pendientes al desconectar y probar aviso con móvil bloqueado. No iniciar ahora el módulo ni equiparar alarmas nativas a funcionamiento validado de GymIA.
+- Reloj: [plan de app compañera](../specs/00-product/watch-companion.md). La fase de notificaciones 0.3.27 incluye Iniciar/Parar/Cerrar con revalidación del estado local. Xiaomi Watch 2 M2320W1 con Wear OS 5 confirmado por el usuario; prueba real de réplica pendiente. Siguiente paso: dictar resultados tras Parar al mismo chat, con transcripción, confirmación y persistencia, y evaluar respuesta hablada. Reutilizar motor/IDs y mostrar pendientes al desconectar. No equiparar pruebas del emulador del móvil a funcionamiento validado del reloj.
 - Activación de iOS: Xcode, firma y dispositivo para validación.
 
 ## Cambio de arquitectura aceptado durante Sprint 1

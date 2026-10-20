@@ -5,6 +5,8 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import android.provider.DocumentsContract
 import android.os.Build
+import android.os.Bundle
+import android.content.pm.ApplicationInfo
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -17,6 +19,12 @@ class MainActivity : FlutterActivity() {
     private val pickSheetRequest = 7401
     private lateinit var googleSheets: GoogleSheetsBridge
     private var notificationPermissionResult: MethodChannel.Result? = null
+    private var restNotificationChannel: MethodChannel? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        RestNotifications.captureStartAction(this, intent)
+        super.onCreate(savedInstanceState)
+    }
 
     private fun readSheet(uri: Uri): Map<String, Any> {
         val mime = contentResolver.getType(uri)
@@ -102,7 +110,8 @@ class MainActivity : FlutterActivity() {
                     result.error("CHATGPT_BROWSER", "No se pudo abrir el navegador.", null)
                 }
             }
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.gymia.app/rest-notifications")
+        restNotificationChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.gymia.app/rest-notifications")
+        restNotificationChannel!!
             .setMethodCallHandler { call, result ->
                 try {
                     when (call.method) {
@@ -122,11 +131,25 @@ class MainActivity : FlutterActivity() {
                             }
                         }
                         "schedule" -> {
-                            RestNotifications.schedule(this, call.argument<String>("id")!!, call.argument<Number>("end")!!.toLong(), call.argument<String>("name") ?: "Entrenamiento")
+                            RestNotifications.schedule(this, call.argument<String>("id")!!, call.argument<Number>("end")!!.toLong(), call.argument<String>("name") ?: "Entrenamiento", call.argument<String>("profileId") ?: "local")
                             result.success(null)
                         }
+                        "prepared" -> result.success(RestNotifications.notifyPrepared(this,
+                            call.argument<String>("name") ?: "Actividad", call.argument<String>("id")!!,
+                            call.argument<Number>("revision")!!.toLong(), call.argument<String>("profileId") ?: "local"))
+                        "running" -> result.success(RestNotifications.notifyRunning(this,
+                            call.argument<String>("name") ?: "Actividad", call.argument<String>("id")!!,
+                            call.argument<Number>("revision")!!.toLong(), call.argument<String>("profileId") ?: "local"))
                         "cancel" -> { RestNotifications.cancel(this); result.success(null) }
                         "test" -> result.success(RestNotifications.notifyTest(this))
+                        "pendingAction" -> result.success(RestNotifications.pendingAction(this))
+                        "completeAction" -> result.success(RestNotifications.completeAction(this,
+                            call.argument<String>("id")!!, call.argument<Number>("end")!!.toLong(),
+                            call.argument<String>("profileId")!!, call.argument<String>("kind")!!,
+                            call.argument<Number>("revision")!!.toLong(), call.argument<Boolean>("success") == true))
+                        "testTapStart" -> result.success((applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0) && RestNotifications.tapStartForTest(this, call.argument<Boolean>("prepared") == true))
+                        "testTapClose" -> result.success((applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0) && RestNotifications.tapCloseForTest(this, call.argument<Boolean>("prepared") == true))
+                        "testTapStop" -> result.success((applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0) && RestNotifications.tapStopForTest(this))
                         "exactSettings" -> {
                             if (Build.VERSION.SDK_INT >= 31) startActivity(Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:$packageName")))
                             result.success(null)
@@ -210,6 +233,9 @@ class MainActivity : FlutterActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        if (RestNotifications.captureStartAction(this, intent)) {
+            restNotificationChannel?.invokeMethod("actionAvailable", null)
+        }
         if (intent.action == Intent.ACTION_SEND) {
             pendingImport = intent
             importChannel?.invokeMethod("importReady", null)

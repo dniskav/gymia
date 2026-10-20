@@ -11,7 +11,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   sqfliteFfiInit();
   test(
-    'one durable rest alarm updates with adjustment and cancels on early restart',
+    'one durable rest alarm updates with adjustment and switches to running controls',
     () async {
       final dir = await Directory.systemTemp.createTemp('gymia-notification-');
       var now = DateTime(2026, 10, 8, 10);
@@ -68,7 +68,7 @@ void main() {
       now = now.add(const Duration(seconds: 20));
       await c.run(() => repo.startInterval(c.focus!.id));
       await Future<void>.delayed(const Duration(milliseconds: 10));
-      expect(calls.last.method, 'cancel');
+      expect(calls.last.method, 'running');
     },
   );
 }

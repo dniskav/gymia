@@ -994,7 +994,10 @@ class _AssistantChatScreenState extends State<AssistantChatScreen>
     availability =
         widget.availability ??
         AiAvailability(client: widget.client, store: aiStore);
-    notifications = RestNotificationController(widget.controller);
+    notifications = RestNotificationController(
+      widget.controller,
+      beforeStart: widget.focusMode ? flushFocusInput : null,
+    );
     notifications.addListener(availabilityChanged);
     unawaited(notifications.initialize());
     availability.addListener(availabilityChanged);
@@ -1767,7 +1770,7 @@ ${jsonEncode({
                           if (notifications.supported)
                             SwitchListTile(
                               title: const Text(
-                                'Avisar al terminar el descanso',
+                                'Avisar al iniciar, parar y terminar el descanso',
                               ),
                               value: notifications.enabled,
                               onChanged:
@@ -1777,15 +1780,24 @@ ${jsonEncode({
                             ),
                           if (notifications.supported)
                             ListTile(
-                              leading: const Icon(Icons.notifications_active_outlined),
+                              leading: const Icon(
+                                Icons.notifications_active_outlined,
+                              ),
                               title: const Text('Probar notificación ahora'),
-                              subtitle: const Text('No requiere iniciar una actividad.'),
+                              subtitle: const Text(
+                                'No requiere iniciar una actividad.',
+                              ),
                               enabled: !notifications.busy,
-                              onTap: notifications.busy ? null : notifications.testNotification,
+                              onTap:
+                                  notifications.busy
+                                      ? null
+                                      : notifications.testNotification,
                             ),
                           if (notifications.testStatus != null)
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
                               child: Text(notifications.testStatus!),
                             ),
                           if (notifications.enabled && !notifications.exact)
@@ -2365,7 +2377,7 @@ ${jsonEncode({
                   SwitchListTile(
                     dense: true,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                    title: const Text('Avisar al terminar descanso'),
+                    title: const Text('Avisos de actividad y descanso'),
                     value: notifications.enabled,
                     onChanged: notifications.busy ? null : notifications.toggle,
                   ),

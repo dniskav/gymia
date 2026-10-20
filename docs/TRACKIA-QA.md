@@ -135,3 +135,10 @@ no prueba todavía las demás historias del SDD, consentimiento real de proveedo
   `011b35534549514958b81932146475e57f9f86b6e4dd8ff9fe5731041809b96a`,
   paquete `com.gymia.app`, versionCode 29. `apksigner` confirma la misma firma
   que 0.3.25. Instalada con `adb install -r` encima de 0.3.25 y abierta.
+
+## 0.3.27 · Acciones de actividad desde notificaciones
+
+- Aviso «Actividad lista» con Iniciar/Cerrar, aviso «Actividad en curso» con Parar y fin de descanso con Iniciar/Cerrar. Cada acción comprueba perfil, actividad y revisión antes de modificar SQLite. Cerrar retira el aviso sin modificar el tramo.
+- Prueba de integración Android API 35: Iniciar actividad preparada, Parar, esperar alarma, Iniciar siguiente tramo, Parar y Cerrar el aviso siguiente; persistencia y ausencia de acción pendiente verificadas. La réplica y los botones en Xiaomi Watch 2 deben comprobarse en el dispositivo real.
+- Flutter analyze sin incidencias y 182 pruebas de la suite aprobadas. APK `releases/trackia-0.3.27.apk`, SHA-256 `72629df197783cd7f9cd82a270145071aeda02b6ad18afe4f259cc2c709eabde`, paquete `com.gymia.app`, versionCode 30. Misma firma que 0.3.26, instalada con `adb install -r` encima de esa versión y abierta en el emulador.
+- Dictado desde el reloj tras Parar y respuesta hablada siguen en el plan de app compañera; el emulador del móvil no acredita esas capacidades.

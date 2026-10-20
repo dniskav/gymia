@@ -2,7 +2,11 @@
 
 # GymIA en el reloj · app compañera
 
-Fecha: 08/10/2026. Añadido a la hoja de ruta por petición del usuario. Estado: fase posterior, propuesta especificada y sin implementación. Dispositivo informado y confirmado por el usuario: Xiaomi Watch 2, modelo M2320W1, Wear OS 5. Falta validar GymIA en ese hardware; recibir llamadas o controlar alarmas no constituye una prueba de funcionamiento de la app. El usuario confirma expresamente que este trabajo queda para otra fase: contemplar sus contratos ahora, sin iniciar el módulo ni desplazar el núcleo IA/datos/Sheets.
+Fecha: 08/10/2026. Añadido a la hoja de ruta por petición del usuario. Estado: controles iniciales por notificaciones implementados; app compañera y voz pendientes. Dispositivo informado y confirmado por el usuario: Xiaomi Watch 2, modelo M2320W1, Wear OS 5. Falta validar TrackIA en ese hardware; recibir llamadas o controlar alarmas no constituye una prueba de funcionamiento de la app.
+
+Actualización de TrackIA, 21/10/2026: la primera entrega usa notificaciones del móvil que Android puede replicar en Wear OS. Una actividad preparada ofrece «Iniciar»; la actividad en curso, «Parar»; el fin del descanso, «Iniciar» y «Cerrar». El móvil valida la identidad y revisión de la actividad antes de guardar la acción. La prueba en emulador Android comprueba estas operaciones; el puente real al Xiaomi Watch 2 sigue pendiente de prueba en ese reloj. «Cerrar» solo retira el aviso, no termina la actividad ni el descanso.
+
+Siguiente etapa solicitada: tras «Parar», permitir dictar desde el reloj resultados como «hice 12 repeticiones con 60 kg». La transcripción debe entrar en el mismo chat y pasar por el mismo reconocimiento de acciones, confirmación y persistencia que la entrada del móvil. Para dictado breve se puede evaluar RemoteInput en la notificación; para conversación por audio y respuesta hablada, construir la app compañera Wear OS y probar permisos, captura, conectividad y reproducción. No afirmar que una notificación puede capturar y transmitir audio crudo por sí sola.
 
 ## Objetivo
 

@@ -9,6 +9,7 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher" android:allowBackup="false">
         <receiver android:name=".RestAlarmReceiver" android:exported="false"/>
+        <receiver android:name=".RestActionReceiver" android:exported="false"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"
