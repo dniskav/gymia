@@ -2,7 +2,8 @@
 
 El checkout ya incluye la bienvenida US9 y la base de compatibilidad T001–T006/T009;
 [evidencia de QA](../../docs/TRACKIA-QA.md).
-La evolución general de TrackIA sigue pendiente y aún no hay APK público de esta etapa.
+La evolución general de TrackIA sigue pendiente. La APK 0.3.23 compartida
+incluye la bienvenida y la base compatible, sin anunciar las historias futuras.
 
 ## Revisar los documentos
 

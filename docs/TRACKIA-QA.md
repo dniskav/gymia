@@ -1,9 +1,8 @@
 # TrackIA · primer incremento de implementación
 
 Fecha: 20/10/2026. Estado: bienvenida US9 y base de compatibilidad TrackIA
-implementadas en el código fuente y probadas localmente. La aplicación visible y el
-APK público siguen siendo GymIA 0.3.22+25; no se declara completa la evolución
-general a TrackIA ni se ha distribuido este APK de QA.
+implementadas y compartidas en APK 0.3.23+26. El nombre visible sigue siendo
+GymIA; no se declara completa la evolución general a TrackIA.
 
 La conversación con IA es el centro del producto. La bienvenida describe las funciones
 actuales; explica que el proveedor debe estar configurado para usar IA y que los
@@ -35,8 +34,8 @@ personalidades ni temporizadores generales antes de implementarlos.
 - La prueba del fallo de escritura mantiene la pantalla abierta y no afirma haber
   guardado una preferencia que no persistió.
 
-La prueba Android fue manual. El recorrido automatizado en `integration_test/` (T050)
-sigue pendiente; también falta una publicación de APK con versión propia. Este informe
+La prueba Android de la bienvenida fue manual. El recorrido automatizado en
+`integration_test/` (T050) sigue pendiente. Este informe
 no prueba todavía las demás historias del SDD, consentimiento real de proveedores ni iOS.
 
 ## Base compatible SQLite v5
@@ -59,3 +58,17 @@ no prueba todavía las demás historias del SDD, consentimiento real de proveedo
   offline, edición, borrado, recuperación e historial). Este recorrido verifica
   que las funciones legadas siguen operando sobre v5; la migración v4→v5 con
   datos sintéticos se probó en SQLite FFI, no en una instalación Android previa.
+
+## APK 0.3.23+26 compartida
+
+- APK firmada `releases/gymia-0.3.23.apk`, SHA-256
+  `5d37f546b9953b4d269d744dbb0e268324afb7b2b5e14fe1a0e3d81a918740c6`;
+  el archivo binario no se incluye en Git. `apksigner verify` confirma la misma
+  huella de certificado de 0.3.22. `aapt` confirma paquete `com.gymia.app`,
+  versionName 0.3.23 y versionCode 26.
+- En un AVD limpio Android 35 ARM64: instalar APK firmada 0.3.22, abrir,
+  instalar 0.3.23 con `adb install -r` y abrir. La pantalla de bienvenida se
+  mostró correctamente. Esta instalación prueba firma/actualización y apertura;
+  el recorrido de datos históricos con valores se cubre con las fixtures v4/v3.
+- Distribuida directamente por Fairdrop. Las actividades abiertas, notas
+  independientes, espacios seleccionables y relojes generales siguen pendientes.
