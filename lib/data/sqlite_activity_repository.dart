@@ -145,16 +145,25 @@ mixin _SqliteActivities implements ActivityRepository {
 
   @override
   Future<ActivityMedia?> loadActivityMedia(String messageId) async {
-    final rows = await _db.query(
-      'activity_messages',
-      columns: ['attachment'],
-      where: 'id = ?',
-      whereArgs: [messageId],
+    final rows = await _db.rawQuery(
+      'SELECT length(attachment) AS attachment_length '
+      'FROM activity_messages WHERE id = ?',
+      [messageId],
     );
-    final source = rows.firstOrNull?['attachment'] as String?;
-    return source == null
-        ? null
-        : ActivityMedia.fromJson(jsonDecode(source) as Map<String, dynamic>);
+    final length = rows.firstOrNull?['attachment_length'] as int?;
+    if (length == null) return null;
+    final source = StringBuffer();
+    for (var offset = 1; offset <= length; offset += 64 * 1024) {
+      final fragment = await _db.rawQuery(
+        'SELECT substr(attachment, ?, ?) AS fragment '
+        'FROM activity_messages WHERE id = ?',
+        [offset, 64 * 1024, messageId],
+      );
+      source.write(fragment.single['fragment'] as String);
+    }
+    return ActivityMedia.fromJson(
+      jsonDecode(source.toString()) as Map<String, dynamic>,
+    );
   }
 
   @override
@@ -189,7 +198,7 @@ mixin _SqliteActivities implements ActivityRepository {
     List<Map<String, String>> fields = const [],
   }) => _db.transaction((tx) async {
     final rows = await tx.rawQuery(
-      'SELECT m.*, a.definition FROM activity_messages m JOIN activities a ON a.id = m.activity_id WHERE m.id = ? AND m.role = ?',
+      'SELECT m.activity_id, m.metrics, a.definition FROM activity_messages m JOIN activities a ON a.id = m.activity_id WHERE m.id = ? AND m.role = ?',
       [messageId, 'user'],
     );
     if (rows.isEmpty) {

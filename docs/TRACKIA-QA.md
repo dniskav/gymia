@@ -90,3 +90,22 @@ no prueba todavía las demás historias del SDD, consentimiento real de proveedo
   `com.gymia.app`, versionName 0.3.24 y versionCode 27. Instalada encima de
   0.3.23 en el AVD Android 35 ARM64; abre la bienvenida correctamente. La
   migración con adjuntos se verificó en SQLite FFI, sin datos reales del usuario.
+
+## Corrección 0.3.25+28 · adjuntos grandes en Android
+
+- Una captura de la 0.3.24 mostró `Row too big to fit into CursorWindow` al
+  leer `activity_messages` durante la copia previa. Era un fallo diferente
+  del límite total de 20 MB: una sola fila con un adjunto grande excedía el
+  límite de lectura de Android. La copia ahora excluye esa columna de la
+  consulta de filas y lee su contenido en fragmentos de 64 KiB.
+- La lectura individual de adjuntos usa también fragmentos; la interpretación
+  de mensajes ya no consulta el adjunto cuando solo necesita métricas.
+- Prueba de integración en Android API 35 ARM64 con un adjunto sintético de
+  3 MB: migración v4→v5, carga del historial, lectura del adjunto y contenido
+  exacto del respaldo, todo aprobado. La suite Flutter pasó **180 pruebas**
+  y `analyze` no informó incidencias. No se usaron datos del usuario.
+- APK firmada `releases/gymia-0.3.25.apk`, SHA-256
+  `2ae8bf489674b1e6827aada24394ef3c7a2f8dac0216d2995ef690637754ee93`;
+  paquete `com.gymia.app`, versionName 0.3.25 y versionCode 28. El certificado
+  coincide con el de 0.3.24. En el emulador se instaló 0.3.24 y luego
+  0.3.25 mediante `adb install -r`; la versión nueva abrió correctamente.

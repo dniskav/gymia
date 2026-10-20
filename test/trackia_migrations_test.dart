@@ -169,6 +169,18 @@ void main() {
           await File('$path.pre-trackia-v4.json').length(),
           greaterThan(20 * 1024 * 1024),
         );
+        final backup =
+            jsonDecode(await File('$path.pre-trackia-v4.json').readAsString())
+                as Map<String, dynamic>;
+        final tables = backup['tables'] as Map<String, dynamic>;
+        final messages = tables['activity_messages'] as List<dynamic>;
+        expect(messages, hasLength(7));
+        expect(
+          (messages.cast<Map<String, dynamic>>().firstWhere(
+            (message) => message['id'] == 'media-0',
+          ))['attachment'],
+          attachment,
+        );
       } finally {
         await dir.delete(recursive: true);
       }

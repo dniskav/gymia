@@ -2,7 +2,7 @@
 
 Base entregada: **GymIA 0.3.22+25**. Objetivo acordado: **TrackIA**, un asistente para
 actividades y registros personales diversos. La bienvenida US9 y la base de
-compatibilidad SQLite v5 tienen código y QA local; la APK 0.3.24 se compartió
+compatibilidad SQLite v5 tienen código y QA local; la APK 0.3.25 se compartió
 por Fairdrop y conserva el nombre visible GymIA.
 
 El SDD vigente de la evolución está en [003-trackia-platform/spec.md](003-trackia-platform/spec.md).

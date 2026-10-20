@@ -41,10 +41,19 @@ Future<void> _backupBeforeTrackiaV5(Database db, String dbPath) async {
       sink.write('${jsonEncode(table)}:[');
       var firstRow = true;
       var lastRowId = -9223372036854775808;
+      final hasMedia = table == 'activity_messages';
+      final columns = SqliteWorkoutRepository._backupTables[table]!;
+      final projected =
+          hasMedia
+              ? 'rowid AS _backup_rowid, '
+                  '${columns.where((column) => column != 'attachment').map((column) => '"$column"').join(', ')}, '
+                  '(attachment IS NOT NULL) AS _backup_has_attachment'
+              : 'rowid AS _backup_rowid, *';
       while (true) {
-        // A small page bounds memory even when a history contains large media.
+        // Never put attachment into Android's CursorWindow: one image can exceed
+        // its per-row capacity even when the query is limited to one row.
         final rows = await db.rawQuery(
-          'SELECT rowid AS _backup_rowid, * FROM "$table" '
+          'SELECT $projected FROM "$table" '
           'WHERE rowid > ? ORDER BY rowid LIMIT 4',
           [lastRowId],
         );
@@ -53,9 +62,44 @@ Future<void> _backupBeforeTrackiaV5(Database db, String dbPath) async {
           lastRowId = row['_backup_rowid'] as int;
           if (!firstRow) sink.write(',');
           firstRow = false;
-          sink.write(
-            jsonEncode(Map<String, Object?>.from(row)..remove('_backup_rowid')),
-          );
+          if (!hasMedia) {
+            sink.write(
+              jsonEncode(
+                Map<String, Object?>.from(row)..remove('_backup_rowid'),
+              ),
+            );
+          } else {
+            sink.write('{');
+            for (var index = 0; index < columns.length; index++) {
+              final column = columns[index];
+              if (index != 0) sink.write(',');
+              sink.write('${jsonEncode(column)}:');
+              if (column != 'attachment') {
+                sink.write(jsonEncode(row[column]));
+                continue;
+              }
+              if (row['_backup_has_attachment'] != 1) {
+                sink.write('null');
+                continue;
+              }
+              sink.write('"');
+              for (var offset = 1; ; offset += 64 * 1024) {
+                final fragment =
+                    (await db.rawQuery(
+                          'SELECT substr(attachment, ?, ?) AS fragment '
+                          'FROM activity_messages WHERE rowid = ?',
+                          [offset, 64 * 1024, lastRowId],
+                        )).single['fragment']
+                        as String;
+                if (fragment.isEmpty) break;
+                final encoded = jsonEncode(fragment);
+                sink.write(encoded.substring(1, encoded.length - 1));
+                if (fragment.runes.length < 64 * 1024) break;
+              }
+              sink.write('"');
+            }
+            sink.write('}');
+          }
         }
         await sink.flush();
       }
