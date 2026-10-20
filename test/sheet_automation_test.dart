@@ -37,6 +37,7 @@ void main() {
   var response = '';
   Future<void> Function()? beforePlanReturn;
   var pauseDuringWrite = false;
+  Map<String, dynamic>? directSnapshot;
   final prompts = <String>[];
   setUp(() async {
     FlutterSecureStorage.setMockInitialValues({
@@ -50,6 +51,7 @@ void main() {
     revoked = false;
     arbitrary = false;
     network = false;
+    directSnapshot = null;
     dir = await Directory.systemTemp.createTemp('gymia-auto-sheets-');
     repo = await SqliteWorkoutRepository.open(
       factory: databaseFactoryFfi,
@@ -94,6 +96,7 @@ void main() {
                 expired = false;
                 throw PlatformException(code: 'GOOGLE_AUTH_REQUIRED');
               }
+              if (directSnapshot != null) return directSnapshot;
               return syncSnapshot(
                 rows:
                     arbitrary
@@ -109,6 +112,23 @@ void main() {
               };
             case 'writeWorkout':
               if (pauseDuringWrite) await automation.service.pauseAutomation();
+              if (directSnapshot != null) {
+                final writes = args['writes'] as List;
+                for (final raw in writes) {
+                  final cell = raw as Map;
+                  final row = cell['row'] as int;
+                  final column = cell['column'] as int;
+                  final value = cell['value'];
+                  (directSnapshot!['entered'] as Map)['$row:$column'] =
+                      value is num
+                          ? {'numberValue': value}
+                          : value is bool
+                          ? {'boolValue': value}
+                          : {'stringValue': value};
+                  ((directSnapshot!['rows'] as List)[row] as List)[column] =
+                      value.toString();
+                }
+              }
               receipts[args['sourceKey'] as String] =
                   args['sourceVersion'] as String;
               return {'synced': true};
@@ -159,6 +179,69 @@ void main() {
     await dir.delete(recursive: true);
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(ProfileStore.channel, null);
+  });
+
+  test(
+    'chat edit checks displayed old value, writes once and verifies Google readback',
+    () async {
+      directSnapshot =
+          jsonDecode(
+                jsonEncode({
+                  ...syncSnapshot(
+                    rows: [
+                      ['Fecha', 'Ejercicio', 'Carga'],
+                      ['21/10/2026', 'Press', '55'],
+                    ],
+                    occupied: ['0:0', '0:1', '0:2', '1:0', '1:1', '1:2'],
+                  ),
+                  'entered': {
+                    '1:2': {'numberValue': 55},
+                  },
+                }),
+              )
+              as Map<String, dynamic>;
+      const edit =
+          '```gymia-sheet-edit\n{"summary":"Corregir carga","writes":[{"cell":"C2","expected":"55","value":60}]}\n```';
+      final result = await automation.directEdit(edit, 'chat-1:mensaje-1');
+      expect(result, contains('Google Sheets confirmó'));
+      expect(result, contains('C2'));
+      final writes =
+          calls.where((call) => call.method == 'writeWorkout').toList();
+      expect(writes, hasLength(1));
+      final args = writes.single.arguments as Map;
+      expect(args['sourceKey'], startsWith('local:edit/'));
+      expect(((args['writes'] as List).single as Map)['expected'], {
+        'numberValue': 55,
+      });
+      expect((directSnapshot!['entered'] as Map)['1:2'], {'numberValue': 60});
+      expect(calls.where((call) => call.method == 'authorizeWrite').length, 1);
+    },
+  );
+
+  test('chat edit refuses a changed cell before writing', () async {
+    directSnapshot =
+        jsonDecode(
+              jsonEncode({
+                ...syncSnapshot(
+                  rows: [
+                    ['Fecha', 'Ejercicio', 'Carga'],
+                    ['21/10/2026', 'Press', '55'],
+                  ],
+                  occupied: ['1:2'],
+                ),
+                'entered': {
+                  '1:2': {'numberValue': 55},
+                },
+              }),
+            )
+            as Map<String, dynamic>;
+    const stale =
+        '```gymia-sheet-edit\n{"summary":"Corregir carga","writes":[{"cell":"C2","expected":"54","value":60}]}\n```';
+    await expectLater(
+      automation.directEdit(stale, 'chat-1:mensaje-2'),
+      throwsA(isA<ValidationException>()),
+    );
+    expect(calls.where((call) => call.method == 'writeWorkout'), isEmpty);
   });
 
   test(

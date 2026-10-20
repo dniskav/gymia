@@ -187,7 +187,7 @@ void main() {
               'authorize' => true,
               'list' => {
                 'files': [
-                  {'id': 'sheet-1', 'name': 'Hoja de entrenamiento de ejemplo'},
+                  {'id': 'sheet-1', 'name': 'Progreso gym final'},
                 ],
               },
               'tabs' => ['Registro2026'],
@@ -248,7 +248,7 @@ void main() {
       await tester.enterText(find.byType(TextField), 'Mi borrador pendiente');
       await tester.tap(find.byKey(const Key('assistant-sheet')));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Hoja de entrenamiento de ejemplo'));
+      await tester.tap(find.text('Progreso gym final'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Registro2026'));
       await tester.pumpAndSettle();
@@ -478,7 +478,8 @@ void main() {
           expect(uri.host, 'opencode.ai');
           sessions.add(headers['x-opencode-session']!);
           final context = (body['messages'] as List).first['content'] as String;
-          expect(context, contains('no tienes herramientas para registrar'));
+          expect(context, contains('no puedes registrar series'));
+          expect(context, contains('gymia-sheet-edit'));
           return {
             'choices': [
               {
@@ -511,6 +512,10 @@ void main() {
       }
 
       await open();
+      expect(
+        find.text('¿Qué te gustaría hacer hoy? Cuéntame y lo organizamos juntos.'),
+        findsOneWidget,
+      );
       await tester.enterText(find.byType(TextField), 'Hola');
       await tester.tap(find.byTooltip('Enviar'));
       await tester.pumpAndSettle();

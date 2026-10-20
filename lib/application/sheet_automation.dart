@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/services.dart';
 import '../data/ai_client.dart';
 import '../data/sheet_context_store.dart';
@@ -100,6 +101,90 @@ class SheetAutomation {
     );
     await SheetContextStore(profileId: controller.profileId).save(fresh);
     return fresh;
+  }
+
+  /// Applies an explicit chat edit to the already-bound sheet. Cell addresses
+  /// and displayed old values are checked against a new Google snapshot.
+  Future<String> directEdit(String answer, String operationKey) async {
+    if (busy) {
+      throw const ValidationException('Hay otra operación de Google en curso.');
+    }
+    busy = true;
+    try {
+      final config = await connect();
+      if (config == null) {
+        throw const ValidationException(
+          'Conecta y elige tu hoja una vez desde Enviar a Google Sheets.',
+        );
+      }
+      final sheet = target(config);
+      final snapshot = await service.snapshot(sheet);
+      checkTarget(config, snapshot);
+      final plan = SheetSyncPlan.parse(
+        answer,
+        snapshot,
+        allowOverwrite: config['allowOverwrite'] == true,
+        fence: 'gymia-sheet-edit',
+        requireExpected: true,
+      );
+      final live = await service.connection();
+      if (live == null ||
+          live['subject'] != config['subject'] ||
+          live['id'] != config['id'] ||
+          live['sheetId'] != config['sheetId'] ||
+          live['title'] != config['title'] ||
+          live['allowOverwrite'] != config['allowOverwrite']) {
+        throw const ValidationException(
+          'La conexión cambió. No se modificó la hoja.',
+        );
+      }
+      final editId = 'edit/${sha256.convert(utf8.encode(operationKey))}';
+      final version = jsonEncode({
+        'request': operationKey,
+        'writes': plan.writes.map((cell) => cell.toJson()).toList(),
+      });
+      final result = await service.write(
+        sheet,
+        editId,
+        snapshot,
+        plan,
+        version,
+        allowOverwrite: config['allowOverwrite'] == true,
+      );
+      if (result['synced'] != true) {
+        throw const ValidationException(
+          'Google no confirmó la edición. Comprueba la hoja antes de reintentar.',
+        );
+      }
+      String suffix = '';
+      try {
+        final after = await service.snapshot(sheet);
+        final entered = after['entered'] as Map;
+        final verified = plan.writes.every((cell) {
+          final value = entered['${cell.row}:${cell.column}'] as Map?;
+          if (cell.value is bool) return value?['boolValue'] == cell.value;
+          if (cell.value is num) {
+            return value?['numberValue'] is num &&
+                (value!['numberValue'] as num).toDouble() ==
+                    (cell.value as num).toDouble();
+          }
+          return value?['stringValue'] == cell.value;
+        });
+        await cache(sheet, after);
+        if (!verified) {
+          suffix =
+              'Google aceptó la operación, pero la lectura posterior no confirmó todas las celdas. Comprueba la hoja antes de reintentar.';
+        }
+      } catch (_) {
+        suffix =
+            'Google aceptó la operación, pero no se pudo verificar la lectura posterior. Comprueba la hoja antes de reintentar.';
+      }
+      return suffix.isEmpty
+          ? 'Google Sheets confirmó la edición en «${sheet.name} / ${sheet.title}»: ${plan.summary} (${plan.writes.map((cell) => cell.address).join(', ')}).'
+          : suffix;
+    } finally {
+      busy = false;
+    }
   }
 
   Future<List<Map<String, dynamic>>> jobs() async {

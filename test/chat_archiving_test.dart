@@ -508,4 +508,94 @@ void main() {
       await tester.pumpWidget(const SizedBox());
     },
   );
+  testWidgets(
+    'chat corrects a specific Google cell and confirms only after readback',
+    (tester) async {
+      const dest = UserProfile(
+        subject: 'chat-edit',
+        email: 'edit@example.test',
+      );
+      const secure = FlutterSecureStorage();
+      await secure.write(
+        key: 'gymia.sheet.destination.v1',
+        value: jsonEncode(dest.toJson()),
+      );
+      final sheet = SheetContext(
+        id: 'connected-sheet',
+        name: 'Progreso',
+        title: 'Resumen 2026',
+        loadedAt: DateTime(2026, 10, 1),
+        rows: const [
+          ['copia anterior'],
+        ],
+      );
+      final snapshot = <String, dynamic>{
+        'rows': [
+          ['Fecha', 'Ejercicio', 'Carga'],
+          ['21/10/2026', 'Press', '55'],
+        ],
+        'occupied': ['0:0', '0:1', '0:2', '1:0', '1:1', '1:2'],
+        'entered': <String, dynamic>{
+          '1:2': {'numberValue': 55},
+        },
+        'merges': <dynamic>[],
+        'properties': {
+          'sheetId': 7,
+          'gridProperties': {'rowCount': 1000, 'columnCount': 26},
+        },
+      };
+      final service = SheetSyncService(profileId: 'local')..identity = dest;
+      await service.bind(sheet, snapshot, allowOverwrite: true);
+      final google = <MethodCall>[];
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(ProfileStore.channel, (call) async {
+            google.add(call);
+            switch (call.method) {
+              case 'authorizeWrite':
+                expect((call.arguments as Map)['interactive'], false);
+                return true;
+              case 'syncSnapshot':
+                return snapshot;
+              case 'writeWorkout':
+                (snapshot['entered'] as Map)['1:2'] = {'numberValue': 60};
+                ((snapshot['rows'] as List)[1] as List)[2] = '60';
+                return {'synced': true};
+            }
+            throw StateError('Unexpected ${call.method}');
+          });
+      addTearDown(
+        () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(ProfileStore.channel, null),
+      );
+      client = AiClient(
+        transport: (_, __, body) async {
+        expect(jsonEncode(body), contains('55'));
+          return {
+            'choices': [
+              {
+                'message': {
+                  'content':
+                      'Propongo la corrección.\n```gymia-sheet-edit\n{"summary":"Cambiar carga de Press a 60","writes":[{"cell":"C2","expected":"55","value":60}]}\n```',
+                },
+              },
+            ],
+          };
+        },
+      );
+      await mount(tester);
+      await tester.enterText(
+        find.byType(TextField).last,
+        'Corrige mi carga de Press de 55 a 60',
+      );
+      await tester.tap(find.byTooltip('Enviar'));
+      await drain(tester);
+      expect(google.where((c) => c.method == 'writeWorkout'), hasLength(1));
+      expect(find.byType(SheetSyncScreen), findsNothing);
+      expect(
+        jsonEncode(jsonDecode((await secure.read(key: 'gymia.ai.chat.v1'))!)),
+        contains('Google Sheets confirmó la edición'),
+      );
+      await tester.pumpWidget(const SizedBox());
+    },
+  );
 }

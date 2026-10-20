@@ -80,13 +80,13 @@ class SheetSyncPlan {
     String response,
     Map<String, dynamic> snapshot, {
     bool allowOverwrite = false,
+    String fence = 'gymia-sheet-plan',
+    bool requireExpected = false,
   }) {
     final matches =
-        RegExp(
-          r'```gymia-sheet-plan\s*\n([\s\S]*?)```',
-        ).allMatches(response).toList();
+        RegExp('```$fence\\s*\\n([\\s\\S]*?)```').allMatches(response).toList();
     if (matches.isEmpty &&
-        !response.contains('```gymia-sheet-plan') &&
+        !response.contains('```$fence') &&
         response.trim().isNotEmpty) {
       throw SheetClarification(response.trim());
     }
@@ -123,7 +123,12 @@ class SheetSyncPlan {
       final writes = <SheetCellWrite>[];
       for (final item in raw) {
         final cell = Map<String, dynamic>.from(item as Map);
-        if (cell.keys.toSet().difference({'cell', 'value'}).isNotEmpty) {
+        if (cell.keys.toSet().difference({
+              'cell',
+              'value',
+              if (requireExpected) 'expected',
+            }).isNotEmpty ||
+            requireExpected && cell['expected'] is! String) {
           throw const FormatException();
         }
         final address = cell['cell'] as String;
@@ -140,6 +145,18 @@ class SheetSyncPlan {
         if (row >= (grid['rowCount'] as int) ||
             column >= (grid['columnCount'] as int)) {
           throw const FormatException();
+        }
+        if (requireExpected) {
+          final rows = snapshot['rows'] as List;
+          final actual =
+              row < rows.length && column < (rows[row] as List).length
+                  ? (rows[row] as List)[column].toString()
+                  : '';
+          if (actual != cell['expected']) {
+            throw ValidationException(
+              '$address cambió desde la lectura del chat. Pide al asistente que lea de nuevo antes de modificar.',
+            );
+          }
         }
         final entered = snapshot['entered'] as Map? ?? {};
         final before = entered['$row:$column'] as Map?;

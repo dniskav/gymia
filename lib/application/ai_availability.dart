@@ -50,7 +50,7 @@ class AiAvailability extends ChangeNotifier {
         _set(
           request,
           AiAvailabilityStatus.unconfigured,
-          'Configura tu proveedor y modelo para usar el asistente y entrenar. Puedes cargar tus datos antes.',
+          'Configura tu proveedor y modelo para usar el asistente. Puedes cargar tus datos antes.',
         );
         return;
       }

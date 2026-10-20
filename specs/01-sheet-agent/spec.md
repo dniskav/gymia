@@ -4,6 +4,8 @@
 
 Estado: requisito confirmado el 08/10/2026; contrato de implementación. La APK 0.3.8 lee hojas y permite consultarlas en el chat. Todavía no genera skills persistentes, importa estructuras arbitrarias ni escribe en Google Sheets.
 
+Avance 21/10/2026: la versión 0.3.28 permite solicitar desde el chat una edición concreta en la pestaña Google conectada, aunque no haya un entrenamiento finalizado. El modelo propone celdas, valor anterior visible y valor nuevo; el motor relee la hoja, comprueba cuenta/pestaña, celdas, fórmulas, combinaciones, permiso de sobrescritura y valor anterior antes de escribir. Se usa el permiso Google ya guardado. Tras la respuesta de Google, la app relee las celdas y solo confirma una edición verificada. Si el cambio no está claro, el modelo pregunta. Esta entrega no crea aún la skill persistente ni resuelve por sí sola cualquier estructura o edición masiva.
+
 ## Resultado
 
 El usuario elige su hoja de entrenamiento. El asistente entiende su organización, aclara dudas relevantes y conserva una skill reutilizable. GymIA mantiene registros propios vinculados a la fuente. Al registrar o corregir entrenamientos, el agente sabe cómo actualizar la misma hoja en su formato original.
